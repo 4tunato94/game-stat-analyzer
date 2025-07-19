@@ -2,57 +2,76 @@
 @tailwind components;
 @tailwind utilities;
 
-/* Definition of the design system. All colors, gradients, fonts, etc should be defined here. 
-All colors MUST be HSL.
-*/
+/* FutebolStats Design System - Modern football analysis theme */
 
 @layer base {
   :root {
-    --background: 0 0% 100%;
-    --foreground: 222.2 84% 4.9%;
+    /* Football-inspired primary colors */
+    --background: 150 20% 98%;
+    --foreground: 140 85% 8%;
 
     --card: 0 0% 100%;
-    --card-foreground: 222.2 84% 4.9%;
+    --card-foreground: 140 85% 8%;
 
     --popover: 0 0% 100%;
-    --popover-foreground: 222.2 84% 4.9%;
+    --popover-foreground: 140 85% 8%;
 
-    --primary: 222.2 47.4% 11.2%;
-    --primary-foreground: 210 40% 98%;
+    /* Main football green theme */
+    --primary: 142 71% 45%;
+    --primary-foreground: 0 0% 100%;
+    --primary-glow: 142 71% 65%;
 
-    --secondary: 210 40% 96.1%;
-    --secondary-foreground: 222.2 47.4% 11.2%;
+    /* Tactical elements */
+    --secondary: 200 15% 94%;
+    --secondary-foreground: 140 85% 8%;
 
-    --muted: 210 40% 96.1%;
+    --muted: 200 15% 94%;
     --muted-foreground: 215.4 16.3% 46.9%;
 
-    --accent: 210 40% 96.1%;
-    --accent-foreground: 222.2 47.4% 11.2%;
+    --accent: 142 30% 85%;
+    --accent-foreground: 140 85% 8%;
 
+    /* Action colors */
+    --success: 142 71% 45%;
+    --success-foreground: 0 0% 100%;
+    
+    --warning: 35 91% 65%;
+    --warning-foreground: 0 0% 100%;
+    
     --destructive: 0 84.2% 60.2%;
-    --destructive-foreground: 210 40% 98%;
+    --destructive-foreground: 0 0% 100%;
 
-    --border: 214.3 31.8% 91.4%;
-    --input: 214.3 31.8% 91.4%;
-    --ring: 222.2 84% 4.9%;
+    /* Interactive elements */
+    --border: 200 20% 88%;
+    --input: 200 20% 88%;
+    --ring: 142 71% 45%;
 
-    --radius: 0.5rem;
+    --radius: 0.75rem;
 
-    --sidebar-background: 0 0% 98%;
+    /* Enhanced sidebar */
+    --sidebar-background: 0 0% 100%;
+    --sidebar-foreground: 140 85% 8%;
+    --sidebar-primary: 142 71% 45%;
+    --sidebar-primary-foreground: 0 0% 100%;
+    --sidebar-accent: 142 30% 85%;
+    --sidebar-accent-foreground: 140 85% 8%;
+    --sidebar-border: 200 20% 88%;
+    --sidebar-ring: 142 71% 45%;
 
-    --sidebar-foreground: 240 5.3% 26.1%;
-
-    --sidebar-primary: 240 5.9% 10%;
-
-    --sidebar-primary-foreground: 0 0% 98%;
-
-    --sidebar-accent: 240 4.8% 95.9%;
-
-    --sidebar-accent-foreground: 240 5.9% 10%;
-
-    --sidebar-border: 220 13% 91%;
-
-    --sidebar-ring: 217.2 91.2% 59.8%;
+    /* Football-specific gradients and effects */
+    --gradient-field: linear-gradient(135deg, hsl(142 71% 45%), hsl(142 61% 35%));
+    --gradient-action: linear-gradient(90deg, hsl(142 71% 45%), hsl(142 71% 65%));
+    --gradient-team-a: linear-gradient(135deg, hsl(210 100% 50%), hsl(220 100% 60%));
+    --gradient-team-b: linear-gradient(135deg, hsl(0 85% 55%), hsl(10 85% 65%));
+    
+    /* Shadows and effects */
+    --shadow-field: 0 8px 32px hsl(142 71% 45% / 0.15);
+    --shadow-action: 0 4px 16px hsl(142 71% 45% / 0.2);
+    --shadow-elevated: 0 10px 40px hsl(140 85% 8% / 0.1);
+    
+    /* Animations */
+    --transition-smooth: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    --transition-bounce: all 0.4s cubic-bezier(0.68, -0.55, 0.265, 1.55);
   }
 
   .dark {
@@ -100,6 +119,49 @@ All colors MUST be HSL.
   }
 
   body {
-    @apply bg-background text-foreground;
+    @apply bg-background text-foreground font-sans;
+  }
+}
+
+@layer components {
+  /* Field zone interaction styles */
+  .field-zone {
+    @apply cursor-pointer transition-all duration-200;
+  }
+  
+  .field-zone:hover {
+    @apply scale-105;
+  }
+  
+  /* Action button styles */
+  .action-btn {
+    @apply bg-gradient-to-r from-primary to-primary-glow text-primary-foreground;
+    @apply rounded-lg px-4 py-3 font-medium shadow-lg;
+    @apply hover:shadow-xl hover:scale-105 active:scale-95;
+    @apply transition-all duration-200;
+  }
+  
+  /* Team color variants */
+  .team-a-btn {
+    background: var(--gradient-team-a);
+    @apply text-white shadow-lg hover:shadow-xl;
+  }
+  
+  .team-b-btn {
+    background: var(--gradient-team-b);
+    @apply text-white shadow-lg hover:shadow-xl;
+  }
+  
+  /* Field container */
+  .field-container {
+    background: var(--gradient-field);
+    box-shadow: var(--shadow-field);
+    @apply rounded-2xl p-6;
+  }
+  
+  /* Stats card */
+  .stats-card {
+    @apply bg-card border border-border rounded-xl p-6;
+    box-shadow: var(--shadow-elevated);
   }
 }

@@ -1,13 +1,251 @@
-// Update this page (the content is just a fallback if you fail to update the page)
+import React, { useState } from 'react';
+import { SidebarProvider, SidebarTrigger } from '@/components/ui/sidebar';
+import { Card, CardContent } from '@/components/ui/card';
+import { useGameState } from '@/hooks/useGameState';
+import { formatGameTime } from '@/types/football';
+
+// Components
+import { AppSidebar } from '@/components/AppSidebar';
+import { FieldMap } from '@/components/FieldMap';
+import { ActionPopup } from '@/components/ActionPopup';
+import { RecentActions } from '@/components/RecentActions';
+import { PlayersDialog } from '@/components/PlayersDialog';
+import { StatsDialog } from '@/components/StatsDialog';
+import { HeatmapDialog } from '@/components/HeatmapDialog';
+import { ActionTypesDialog } from '@/components/ActionTypesDialog';
 
 const Index = () => {
+  const {
+    gameState,
+    actionTypes,
+    startTimer,
+    stopTimer,
+    resetTimer,
+    updateTime,
+    updateTeam,
+    addPlayer,
+    removePlayer,
+    addAction,
+    updateAction,
+    removeAction,
+    addActionType,
+    updateActionType,
+    removeActionType,
+  } = useGameState();
+
+  // Dialog states
+  const [actionPopupOpen, setActionPopupOpen] = useState(false);
+  const [selectedZone, setSelectedZone] = useState<string | null>(null);
+  const [playersDialogOpen, setPlayersDialogOpen] = useState(false);
+  const [statsDialogOpen, setStatsDialogOpen] = useState(false);
+  const [heatmapDialogOpen, setHeatmapDialogOpen] = useState(false);
+  const [actionTypesDialogOpen, setActionTypesDialogOpen] = useState(false);
+
+  // Handle zone click from field
+  const handleZoneClick = (zoneId: string) => {
+    setSelectedZone(zoneId);
+    setActionPopupOpen(true);
+  };
+
+  // Handle action submission
+  const handleActionSubmit = (data: {
+    team: 'A' | 'B';
+    actionTypeId: string;
+    playerNumber?: number;
+  }) => {
+    if (!selectedZone) return;
+
+    let player = undefined;
+    if (data.playerNumber) {
+      // Find or create player
+      const existingPlayer = gameState.players[data.team].find(p => p.number === data.playerNumber);
+      if (existingPlayer) {
+        player = existingPlayer;
+      } else {
+        // Create a basic player record
+        const newPlayer = {
+          number: data.playerNumber,
+          name: `Jogador #${data.playerNumber}`,
+          position: 'Posição não definida',
+        };
+        addPlayer(data.team, newPlayer);
+        
+        // Get the created player
+        player = {
+          id: `${data.team}-${data.playerNumber}`,
+          team: data.team,
+          ...newPlayer,
+        };
+      }
+    }
+
+    addAction({
+      team: data.team,
+      zone: selectedZone,
+      actionType: data.actionTypeId,
+      gameTime: formatGameTime(gameState.currentTime),
+      player,
+    });
+  };
+
   return (
-    <div className="min-h-screen flex items-center justify-center bg-background">
-      <div className="text-center">
-        <h1 className="text-4xl font-bold mb-4">Welcome to Your Blank App</h1>
-        <p className="text-xl text-muted-foreground">Start building your amazing project here!</p>
+    <SidebarProvider>
+      <div className="min-h-screen flex w-full bg-background">
+        {/* Sidebar */}
+        <AppSidebar
+          isRunning={gameState.isRunning}
+          currentTime={gameState.currentTime}
+          onStart={startTimer}
+          onStop={stopTimer}
+          onReset={resetTimer}
+          onTimeUpdate={updateTime}
+          onOpenPlayersDialog={() => setPlayersDialogOpen(true)}
+          onOpenStatsDialog={() => setStatsDialogOpen(true)}
+          onOpenHeatmapDialog={() => setHeatmapDialogOpen(true)}
+          onOpenActionTypesDialog={() => setActionTypesDialogOpen(true)}
+        />
+
+        {/* Main Content */}
+        <main className="flex-1 flex flex-col">
+          {/* Header */}
+          <header className="h-16 border-b bg-card flex items-center px-4 gap-4">
+            <SidebarTrigger />
+            
+            <div className="flex-1 flex items-center justify-center gap-8">
+              {/* Team A */}
+              <div className="flex items-center gap-3">
+                <div 
+                  className="w-6 h-6 rounded-full border-2 border-white shadow-lg"
+                  style={{ backgroundColor: gameState.teams.A.color }}
+                />
+                <div className="text-center">
+                  <div className="font-bold text-lg">{gameState.teams.A.name}</div>
+                  <div className="text-sm text-muted-foreground">
+                    {gameState.actions.filter(a => a.team === 'A').length} ações
+                  </div>
+                </div>
+              </div>
+
+              <div className="text-center px-6">
+                <div className="text-2xl font-bold text-primary">VS</div>
+                <div className="text-xs text-muted-foreground">
+                  {formatGameTime(gameState.currentTime)}
+                </div>
+              </div>
+
+              {/* Team B */}
+              <div className="flex items-center gap-3">
+                <div className="text-center">
+                  <div className="font-bold text-lg">{gameState.teams.B.name}</div>
+                  <div className="text-sm text-muted-foreground">
+                    {gameState.actions.filter(a => a.team === 'B').length} ações
+                  </div>
+                </div>
+                <div 
+                  className="w-6 h-6 rounded-full border-2 border-white shadow-lg"
+                  style={{ backgroundColor: gameState.teams.B.color }}
+                />
+              </div>
+            </div>
+          </header>
+
+          {/* Content Area */}
+          <div className="flex-1 p-6 space-y-6">
+            {/* Field Section */}
+            <Card>
+              <CardContent className="p-6">
+                <FieldMap onZoneClick={handleZoneClick} />
+              </CardContent>
+            </Card>
+
+            {/* Recent Actions */}
+            <RecentActions
+              actions={gameState.actions}
+              actionTypes={actionTypes}
+              teamColors={{
+                A: gameState.teams.A.color,
+                B: gameState.teams.B.color,
+              }}
+              onEditAction={(action) => {
+                // TODO: Implement edit action
+                console.log('Edit action:', action);
+              }}
+              onDeleteAction={removeAction}
+            />
+          </div>
+        </main>
+
+        {/* Dialogs */}
+        <ActionPopup
+          isOpen={actionPopupOpen}
+          onClose={() => setActionPopupOpen(false)}
+          zoneId={selectedZone}
+          currentTime={gameState.currentTime}
+          actionTypes={actionTypes}
+          players={gameState.players}
+          teamColors={{
+            A: gameState.teams.A.color,
+            B: gameState.teams.B.color,
+          }}
+          onActionSubmit={handleActionSubmit}
+        />
+
+        <PlayersDialog
+          isOpen={playersDialogOpen}
+          onClose={() => setPlayersDialogOpen(false)}
+          players={gameState.players}
+          teamColors={{
+            A: gameState.teams.A.color,
+            B: gameState.teams.B.color,
+          }}
+          teamNames={{
+            A: gameState.teams.A.name,
+            B: gameState.teams.B.name,
+          }}
+          onAddPlayer={addPlayer}
+          onRemovePlayer={removePlayer}
+        />
+
+        <StatsDialog
+          isOpen={statsDialogOpen}
+          onClose={() => setStatsDialogOpen(false)}
+          actions={gameState.actions}
+          actionTypes={actionTypes}
+          players={gameState.players}
+          teamColors={{
+            A: gameState.teams.A.color,
+            B: gameState.teams.B.color,
+          }}
+          teamNames={{
+            A: gameState.teams.A.name,
+            B: gameState.teams.B.name,
+          }}
+        />
+
+        <HeatmapDialog
+          isOpen={heatmapDialogOpen}
+          onClose={() => setHeatmapDialogOpen(false)}
+          actions={gameState.actions}
+          teamColors={{
+            A: gameState.teams.A.color,
+            B: gameState.teams.B.color,
+          }}
+          teamNames={{
+            A: gameState.teams.A.name,
+            B: gameState.teams.B.name,
+          }}
+        />
+
+        <ActionTypesDialog
+          isOpen={actionTypesDialogOpen}
+          onClose={() => setActionTypesDialogOpen(false)}
+          actionTypes={actionTypes}
+          onAddActionType={addActionType}
+          onUpdateActionType={updateActionType}
+          onRemoveActionType={removeActionType}
+        />
       </div>
-    </div>
+    </SidebarProvider>
   );
 };
 
