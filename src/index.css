@@ -135,33 +135,34 @@
   
   /* Action button styles */
   .action-btn {
-    @apply bg-gradient-to-r from-primary to-primary-glow text-primary-foreground;
+    @apply bg-primary text-primary-foreground;
     @apply rounded-lg px-4 py-3 font-medium shadow-lg;
     @apply hover:shadow-xl hover:scale-105 active:scale-95;
     @apply transition-all duration-200;
+    background: linear-gradient(135deg, hsl(var(--primary)), hsl(var(--primary)));
   }
   
   /* Team color variants */
   .team-a-btn {
-    background: var(--gradient-team-a);
     @apply text-white shadow-lg hover:shadow-xl;
+    @apply hover:scale-105 active:scale-95 transition-all duration-200;
   }
   
   .team-b-btn {
-    background: var(--gradient-team-b);
     @apply text-white shadow-lg hover:shadow-xl;
+    @apply hover:scale-105 active:scale-95 transition-all duration-200;
   }
   
   /* Field container */
   .field-container {
-    background: var(--gradient-field);
-    box-shadow: var(--shadow-field);
     @apply rounded-2xl p-6;
+    background: linear-gradient(135deg, hsl(var(--primary)), hsl(142 61% 35%));
+    box-shadow: 0 8px 32px hsl(var(--primary) / 0.15);
   }
   
   /* Stats card */
   .stats-card {
     @apply bg-card border border-border rounded-xl p-6;
-    box-shadow: var(--shadow-elevated);
+    box-shadow: 0 10px 40px hsl(var(--foreground) / 0.1);
   }
 }
