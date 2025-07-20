@@ -71,12 +71,12 @@ export const useGameState = () => {
   }, []);
 
   // Team management
-  const updateTeam = useCallback((teamId: 'A' | 'B', name: string, color: string) => {
+  const updateTeam = useCallback((teamId: 'A' | 'B', teamData: Partial<{ name: string; color: string }>) => {
     setGameState(prev => ({
       ...prev,
       teams: {
         ...prev.teams,
-        [teamId]: { id: teamId, name, color },
+        [teamId]: { ...prev.teams[teamId], ...teamData },
       },
     }));
   }, []);

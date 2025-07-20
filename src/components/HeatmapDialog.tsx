@@ -1,21 +1,23 @@
-import React, { useMemo } from 'react';
+import React, { useMemo, useRef } from 'react';
 import {
   Dialog,
   DialogContent,
   DialogHeader,
   DialogTitle,
 } from '@/components/ui/dialog';
+import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Badge } from '@/components/ui/badge';
-import { Flame, Target, Activity } from 'lucide-react';
-import { GameAction, ZONES, getZoneName } from '@/types/football';
+import { Flame, Target, Activity, Download, Image } from 'lucide-react';
+import { GameAction, ZONES, getZoneName, ActionType } from '@/types/football';
 import fieldImage from '@/assets/football-field.jpg';
 
 interface HeatmapDialogProps {
   isOpen: boolean;
   onClose: () => void;
   actions: GameAction[];
+  actionTypes: ActionType[];
   teamColors: { A: string; B: string };
   teamNames: { A: string; B: string };
 }
@@ -24,48 +26,84 @@ export const HeatmapDialog: React.FC<HeatmapDialogProps> = ({
   isOpen,
   onClose,
   actions,
+  actionTypes,
   teamColors,
   teamNames,
 }) => {
+  const heatmapRef = useRef<HTMLDivElement>(null);
   const heatmapData = useMemo(() => {
     const teamAActions = actions.filter(a => a.team === 'A');
     const teamBActions = actions.filter(a => a.team === 'B');
 
     const getZoneStats = (teamActions: GameAction[]) => {
       const zoneStats: Record<string, number> = {};
+      const zoneActions: Record<string, GameAction[]> = {};
+      
       teamActions.forEach(action => {
         zoneStats[action.zone] = (zoneStats[action.zone] || 0) + 1;
+        if (!zoneActions[action.zone]) {
+          zoneActions[action.zone] = [];
+        }
+        zoneActions[action.zone].push(action);
       });
-      return zoneStats;
+      
+      return { zoneStats, zoneActions };
     };
 
-    const teamAZones = getZoneStats(teamAActions);
-    const teamBZones = getZoneStats(teamBActions);
+    const teamAData = getZoneStats(teamAActions);
+    const teamBData = getZoneStats(teamBActions);
     
-    const maxTeamA = Math.max(...Object.values(teamAZones), 1);
-    const maxTeamB = Math.max(...Object.values(teamBZones), 1);
+    const maxTeamA = Math.max(...Object.values(teamAData.zoneStats), 1);
+    const maxTeamB = Math.max(...Object.values(teamBData.zoneStats), 1);
+
+    const getTopActionsInZone = (zoneActions: Record<string, GameAction[]>, zoneId: string) => {
+      const actionsInZone = zoneActions[zoneId] || [];
+      const actionTypeCounts: Record<string, number> = {};
+      
+      actionsInZone.forEach(action => {
+        const actionName = actionTypes.find(at => at.id === action.actionType)?.name || action.actionType;
+        actionTypeCounts[actionName] = (actionTypeCounts[actionName] || 0) + 1;
+      });
+      
+      return Object.entries(actionTypeCounts)
+        .sort(([, a], [, b]) => b - a)
+        .slice(0, 3)
+        .map(([actionName, count]) => ({ actionName, count }));
+    };
 
     return {
       teamA: {
-        zones: teamAZones,
+        zones: teamAData.zoneStats,
         max: maxTeamA,
         total: teamAActions.length,
-        topZones: Object.entries(teamAZones)
+        zoneActions: teamAData.zoneActions,
+        topZones: Object.entries(teamAData.zoneStats)
           .sort(([, a], [, b]) => b - a)
           .slice(0, 5)
-          .map(([zoneId, count]) => ({ zoneId, count, name: getZoneName(zoneId) })),
+          .map(([zoneId, count]) => ({ 
+            zoneId, 
+            count, 
+            name: getZoneName(zoneId),
+            topActions: getTopActionsInZone(teamAData.zoneActions, zoneId)
+          })),
       },
       teamB: {
-        zones: teamBZones,
+        zones: teamBData.zoneStats,
         max: maxTeamB,
         total: teamBActions.length,
-        topZones: Object.entries(teamBZones)
+        zoneActions: teamBData.zoneActions,
+        topZones: Object.entries(teamBData.zoneStats)
           .sort(([, a], [, b]) => b - a)
           .slice(0, 5)
-          .map(([zoneId, count]) => ({ zoneId, count, name: getZoneName(zoneId) })),
+          .map(([zoneId, count]) => ({ 
+            zoneId, 
+            count, 
+            name: getZoneName(zoneId),
+            topActions: getTopActionsInZone(teamBData.zoneActions, zoneId)
+          })),
       },
     };
-  }, [actions]);
+  }, [actions, actionTypes]);
 
   const getZoneOpacity = (zoneId: string, teamData: typeof heatmapData.teamA): number => {
     const count = teamData.zones[zoneId] || 0;
@@ -137,6 +175,17 @@ export const HeatmapDialog: React.FC<HeatmapDialogProps> = ({
     };
   };
 
+  const exportHeatmap = async () => {
+    // This would require html2canvas library
+    alert('Funcionalidade de exportação de mapa de calor será implementada em breve!');
+  };
+
+  const getIntensityColor = (intensity: number) => {
+    // Generate color from yellow to red based on intensity
+    const hue = Math.max(0, 60 - (intensity * 60)); // 60 = yellow, 0 = red
+    return `hsl(${hue}, 100%, 50%)`;
+  };
+
   const TeamHeatmap: React.FC<{ 
     teamId: 'A' | 'B';
     teamData: typeof heatmapData.teamA;
@@ -166,16 +215,27 @@ export const HeatmapDialog: React.FC<HeatmapDialogProps> = ({
         </CardContent>
       </Card>
 
+      {/* Export Button */}
+      <div className="flex justify-center">
+        <Button onClick={exportHeatmap} variant="outline" className="flex items-center gap-2">
+          <Image className="h-4 w-4" />
+          Exportar Mapa Selecionado
+        </Button>
+      </div>
+
       {/* Heatmap Visualization */}
       <Card>
         <CardHeader>
           <CardTitle className="flex items-center gap-2">
             <Flame className="h-5 w-5" />
             Mapa de Calor - {teamNames[teamId]}
+            <div className="text-sm text-muted-foreground ml-auto">
+              Intensidade de ações por zona do campo
+            </div>
           </CardTitle>
         </CardHeader>
         <CardContent>
-          <div className="relative">
+          <div className="relative" ref={heatmapRef}>
             {/* Field background */}
             <img
               src={fieldImage}
@@ -183,44 +243,58 @@ export const HeatmapDialog: React.FC<HeatmapDialogProps> = ({
               className="w-full h-auto rounded-lg"
             />
             
-            {/* Heat overlay */}
+            {/* Heat overlay with improved colors */}
             <div className="absolute inset-0 rounded-lg overflow-hidden">
               {ZONES.map((zone) => {
-                const opacity = getZoneOpacity(zone.id, teamData);
+                const count = teamData.zones[zone.id] || 0;
+                const intensity = count > 0 ? count / teamData.max : 0;
                 const position = getZonePosition(zone.id);
                 
-                if (opacity === 0) return null;
+                if (count === 0) return null;
                 
                 return (
                   <div
                     key={zone.id}
-                    className="absolute transition-all duration-300 border border-white/30"
+                    className="absolute transition-all duration-300 border border-white/20 flex items-center justify-center"
                     style={{
                       ...position,
-                      backgroundColor: `${teamColors[teamId]}${Math.round(opacity * 255).toString(16).padStart(2, '0')}`,
+                      backgroundColor: `${getIntensityColor(intensity)}${Math.round(intensity * 0.7 * 255).toString(16).padStart(2, '0')}`,
                     }}
-                    title={`${zone.name}: ${teamData.zones[zone.id] || 0} ações`}
-                  />
+                    title={`${zone.name}: ${count} ações`}
+                  >
+                    {count > 0 && (
+                      <div className="text-white text-xs font-bold drop-shadow-lg">
+                        {count}
+                      </div>
+                    )}
+                  </div>
                 );
               })}
             </div>
             
-            {/* Legend */}
-            <div className="absolute bottom-2 left-2 bg-black/70 text-white p-2 rounded text-xs">
-              <div className="flex items-center gap-2">
-                <span>Intensidade:</span>
-                <div className="flex gap-1">
-                  {[0.2, 0.4, 0.6, 0.8, 1].map((opacity) => (
-                    <div
-                      key={opacity}
-                      className="w-4 h-4 border border-white/30"
-                      style={{
-                        backgroundColor: `${teamColors[teamId]}${Math.round(opacity * 255).toString(16).padStart(2, '0')}`,
-                      }}
-                    />
-                  ))}
+            {/* Enhanced Legend */}
+            <div className="absolute bottom-2 left-2 bg-black/80 text-white p-3 rounded text-xs">
+              <div className="space-y-2">
+                <div className="flex items-center gap-2">
+                  <span className="font-medium">Intensidade:</span>
+                  <div className="flex gap-1">
+                    {[0.2, 0.4, 0.6, 0.8, 1].map((intensity) => (
+                      <div
+                        key={intensity}
+                        className="w-4 h-4 border border-white/30 flex items-center justify-center text-[10px]"
+                        style={{
+                          backgroundColor: `${getIntensityColor(intensity)}${Math.round(intensity * 0.7 * 255).toString(16).padStart(2, '0')}`,
+                        }}
+                      >
+                        {Math.round(intensity * teamData.max)}
+                      </div>
+                    ))}
+                  </div>
+                  <span>Baixa → Alta</span>
                 </div>
-                <span>Max</span>
+                <div className="text-[10px] text-gray-300">
+                  Total: {teamData.total} ações • Máx por zona: {teamData.max}
+                </div>
               </div>
             </div>
           </div>
@@ -255,18 +329,31 @@ export const HeatmapDialog: React.FC<HeatmapDialogProps> = ({
                       <span className="font-medium text-sm">{zone.name}</span>
                       <span className="text-sm font-bold">{zone.count} ações</span>
                     </div>
-                    <div className="w-full bg-muted rounded-full h-2">
+                    <div className="w-full bg-muted rounded-full h-2 mb-2">
                       <div
                         className="h-2 rounded-full transition-all duration-300"
                         style={{
-                          backgroundColor: teamColors[teamId],
+                          backgroundColor: getIntensityColor(zone.count / teamData.max),
                           width: `${(zone.count / teamData.max) * 100}%`,
                         }}
                       />
                     </div>
+                    {/* Top actions in this zone */}
+                    {zone.topActions && zone.topActions.length > 0 && (
+                      <div className="text-xs text-muted-foreground">
+                        <div className="font-medium mb-1">Ações principais:</div>
+                        {zone.topActions.map((action, i) => (
+                          <div key={i} className="flex justify-between">
+                            <span>{action.actionName}</span>
+                            <span>{action.count}x</span>
+                          </div>
+                        ))}
+                      </div>
+                    )}
                   </div>
-                  <div className="text-xs text-muted-foreground">
-                    {((zone.count / teamData.total) * 100).toFixed(1)}%
+                  <div className="text-xs text-muted-foreground text-right">
+                    <div>{((zone.count / teamData.total) * 100).toFixed(1)}%</div>
+                    <div className="text-[10px] mt-1">do total</div>
                   </div>
                 </div>
               ))}

@@ -3,6 +3,7 @@ import { SidebarProvider, SidebarTrigger } from '@/components/ui/sidebar';
 import { Card, CardContent } from '@/components/ui/card';
 import { useGameState } from '@/hooks/useGameState';
 import { formatGameTime } from '@/types/football';
+import { Button } from '@/components/ui/button';
 
 // Components
 import { AppSidebar } from '@/components/AppSidebar';
@@ -13,6 +14,7 @@ import { PlayersDialog } from '@/components/PlayersDialog';
 import { StatsDialog } from '@/components/StatsDialog';
 import { HeatmapDialog } from '@/components/HeatmapDialog';
 import { ActionTypesDialog } from '@/components/ActionTypesDialog';
+import { TeamEditDialog } from '@/components/TeamEditDialog';
 
 const Index = () => {
   const {
@@ -40,6 +42,7 @@ const Index = () => {
   const [statsDialogOpen, setStatsDialogOpen] = useState(false);
   const [heatmapDialogOpen, setHeatmapDialogOpen] = useState(false);
   const [actionTypesDialogOpen, setActionTypesDialogOpen] = useState(false);
+  const [teamEditDialogOpen, setTeamEditDialogOpen] = useState(false);
 
   // Handle zone click from field
   const handleZoneClick = (zoneId: string) => {
@@ -226,6 +229,7 @@ const Index = () => {
           isOpen={heatmapDialogOpen}
           onClose={() => setHeatmapDialogOpen(false)}
           actions={gameState.actions}
+          actionTypes={actionTypes}
           teamColors={{
             A: gameState.teams.A.color,
             B: gameState.teams.B.color,
@@ -243,6 +247,13 @@ const Index = () => {
           onAddActionType={addActionType}
           onUpdateActionType={updateActionType}
           onRemoveActionType={removeActionType}
+        />
+
+        <TeamEditDialog
+          isOpen={teamEditDialogOpen}
+          onClose={() => setTeamEditDialogOpen(false)}
+          teams={gameState.teams}
+          onUpdateTeam={updateTeam}
         />
       </div>
     </SidebarProvider>

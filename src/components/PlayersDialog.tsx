@@ -11,8 +11,10 @@ import { Label } from '@/components/ui/label';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
-import { Plus, Trash2, Users } from 'lucide-react';
+import { Plus, Trash2, Users, Upload } from 'lucide-react';
 import { Player } from '@/types/football';
+import { AddPlayerDialog } from './AddPlayerDialog';
+import { ImportPlayersDialog } from './ImportPlayersDialog';
 
 interface PlayersDialogProps {
   isOpen: boolean;
@@ -34,40 +36,16 @@ export const PlayersDialog: React.FC<PlayersDialogProps> = ({
   onRemovePlayer,
 }) => {
   const [activeTab, setActiveTab] = useState<'A' | 'B'>('A');
-  const [newPlayer, setNewPlayer] = useState({
-    number: '',
-    name: '',
-    position: '',
-  });
+  const [addPlayerDialogOpen, setAddPlayerDialogOpen] = useState(false);
+  const [importDialogOpen, setImportDialogOpen] = useState(false);
 
-  const handleAddPlayer = () => {
-    const number = parseInt(newPlayer.number);
-    
-    if (!newPlayer.name.trim() || !newPlayer.position.trim() || isNaN(number) || number < 1 || number > 99) {
-      alert('Por favor, preencha todos os campos corretamente');
-      return;
-    }
-
-    // Check if number already exists
-    const existingPlayer = players[activeTab].find(p => p.number === number);
-    if (existingPlayer) {
-      alert(`Jogador com número ${number} já existe no ${teamNames[activeTab]}`);
-      return;
-    }
-
-    onAddPlayer(activeTab, {
-      number,
-      name: newPlayer.name.trim(),
-      position: newPlayer.position.trim(),
+  const handleImportPlayers = (teamId: 'A' | 'B', importedPlayers: Omit<Player, 'id' | 'team'>[]) => {
+    importedPlayers.forEach(player => {
+      const existingPlayer = players[teamId].find(p => p.number === player.number);
+      if (!existingPlayer) {
+        onAddPlayer(teamId, player);
+      }
     });
-
-    setNewPlayer({ number: '', name: '', position: '' });
-  };
-
-  const handleKeyPress = (e: React.KeyboardEvent) => {
-    if (e.key === 'Enter') {
-      handleAddPlayer();
-    }
   };
 
   const TeamPlayerList: React.FC<{ teamId: 'A' | 'B' }> = ({ teamId }) => {
@@ -75,62 +53,24 @@ export const PlayersDialog: React.FC<PlayersDialogProps> = ({
 
     return (
       <div className="space-y-4">
-        {/* Add Player Form */}
-        <Card>
-          <CardHeader>
-            <CardTitle className="text-lg flex items-center gap-2">
-              <Plus className="h-5 w-5" />
-              Adicionar Jogador
-            </CardTitle>
-          </CardHeader>
-          <CardContent className="space-y-4">
-            <div className="grid grid-cols-3 gap-3">
-              <div>
-                <Label htmlFor={`number-${teamId}`}>Número</Label>
-                <Input
-                  id={`number-${teamId}`}
-                  type="number"
-                  min="1"
-                  max="99"
-                  placeholder="10"
-                  value={newPlayer.number}
-                  onChange={(e) => setNewPlayer(prev => ({ ...prev, number: e.target.value }))}
-                  onKeyPress={handleKeyPress}
-                />
-              </div>
-              <div className="col-span-2">
-                <Label htmlFor={`name-${teamId}`}>Nome</Label>
-                <Input
-                  id={`name-${teamId}`}
-                  placeholder="Nome do jogador"
-                  value={newPlayer.name}
-                  onChange={(e) => setNewPlayer(prev => ({ ...prev, name: e.target.value }))}
-                  onKeyPress={handleKeyPress}
-                />
-              </div>
-            </div>
-            <div className="grid grid-cols-3 gap-3">
-              <div className="col-span-2">
-                <Label htmlFor={`position-${teamId}`}>Posição</Label>
-                <Input
-                  id={`position-${teamId}`}
-                  placeholder="Ex: Atacante, Meio-campo..."
-                  value={newPlayer.position}
-                  onChange={(e) => setNewPlayer(prev => ({ ...prev, position: e.target.value }))}
-                  onKeyPress={handleKeyPress}
-                />
-              </div>
-              <div className="flex items-end">
-                <Button 
-                  onClick={handleAddPlayer}
-                  className="w-full action-btn"
-                >
-                  Adicionar
-                </Button>
-              </div>
-            </div>
-          </CardContent>
-        </Card>
+        {/* Action Buttons */}
+        <div className="grid grid-cols-2 gap-3">
+          <Button 
+            onClick={() => setAddPlayerDialogOpen(true)}
+            className="action-btn flex items-center gap-2"
+          >
+            <Plus className="h-4 w-4" />
+            Adicionar Jogador
+          </Button>
+          <Button 
+            onClick={() => setImportDialogOpen(true)}
+            variant="outline"
+            className="flex items-center gap-2"
+          >
+            <Upload className="h-4 w-4" />
+            Importar TXT
+          </Button>
+        </div>
 
         {/* Players List */}
         <Card>
@@ -236,6 +176,22 @@ export const PlayersDialog: React.FC<PlayersDialogProps> = ({
             <TeamPlayerList teamId="B" />
           </TabsContent>
         </Tabs>
+
+        {/* Sub-dialogs */}
+        <AddPlayerDialog
+          isOpen={addPlayerDialogOpen}
+          onClose={() => setAddPlayerDialogOpen(false)}
+          onAddPlayer={onAddPlayer}
+          existingPlayers={players}
+          teamNames={teamNames}
+        />
+
+        <ImportPlayersDialog
+          isOpen={importDialogOpen}
+          onClose={() => setImportDialogOpen(false)}
+          onImportPlayers={handleImportPlayers}
+          teamNames={teamNames}
+        />
       </DialogContent>
     </Dialog>
   );

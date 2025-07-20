@@ -5,10 +5,11 @@ import {
   DialogHeader,
   DialogTitle,
 } from '@/components/ui/dialog';
+import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { BarChart3, TrendingUp, Target, Award } from 'lucide-react';
+import { BarChart3, TrendingUp, Target, Award, Download, FileText, Image } from 'lucide-react';
 import { GameAction, ActionType, Player } from '@/types/football';
 
 interface StatsDialogProps {
@@ -33,10 +34,15 @@ export const StatsDialog: React.FC<StatsDialogProps> = ({
   const stats = useMemo(() => {
     const teamAActions = actions.filter(a => a.team === 'A');
     const teamBActions = actions.filter(a => a.team === 'B');
+    const totalActions = actions.length;
 
     const getActionTypeName = (id: string) => {
       return actionTypes.find(at => at.id === id)?.name || id;
     };
+
+    // Calculate possession based on total actions
+    const possessionA = totalActions > 0 ? (teamAActions.length / totalActions) * 100 : 0;
+    const possessionB = totalActions > 0 ? (teamBActions.length / totalActions) * 100 : 0;
 
     const getPlayerStats = (teamActions: GameAction[], teamPlayers: Player[]) => {
       const playerStats: Record<string, { player: Player; count: number; actions: string[] }> = {};
@@ -80,15 +86,59 @@ export const StatsDialog: React.FC<StatsDialogProps> = ({
         totalActions: teamAActions.length,
         playerStats: getPlayerStats(teamAActions, players.A),
         actionTypeStats: getActionTypeStats(teamAActions),
+        possession: possessionA,
       },
       teamB: {
         totalActions: teamBActions.length,
         playerStats: getPlayerStats(teamBActions, players.B),
         actionTypeStats: getActionTypeStats(teamBActions),
+        possession: possessionB,
       },
-      total: actions.length,
+      total: totalActions,
     };
   }, [actions, actionTypes, players]);
+
+  const exportToText = () => {
+    const content = `RELATÓRIO DE ESTATÍSTICAS DA PARTIDA
+${teamNames.A} vs ${teamNames.B}
+Total de Ações: ${stats.total}
+
+POSSE DE BOLA:
+${teamNames.A}: ${stats.teamA.possession.toFixed(1)}%
+${teamNames.B}: ${stats.teamB.possession.toFixed(1)}%
+
+ESTATÍSTICAS DETALHADAS:
+
+${teamNames.A} (${stats.teamA.totalActions} ações):
+${stats.teamA.actionTypeStats.map(([action, count]) => `  ${action}: ${count}`).join('\n')}
+
+${teamNames.B} (${stats.teamB.totalActions} ações):
+${stats.teamB.actionTypeStats.map(([action, count]) => `  ${action}: ${count}`).join('\n')}
+
+ÚLTIMAS 10 AÇÕES:
+${actions.slice(0, 10).map(action => {
+  const actionName = actionTypes.find(at => at.id === action.actionType)?.name || action.actionType;
+  const playerInfo = action.player ? ` (${action.player.name} #${action.player.number})` : '';
+  return `${action.gameTime} - ${teamNames[action.team]} - ${actionName}${playerInfo}`;
+}).join('\n')}
+`;
+
+    const blob = new Blob([content], { type: 'text/plain' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = `estatisticas_${teamNames.A}_vs_${teamNames.B}.txt`;
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    URL.revokeObjectURL(url);
+  };
+
+  const exportToImage = async () => {
+    // This would require html2canvas or similar library
+    // For now, we'll show an alert
+    alert('Funcionalidade de exportação de imagem será implementada em breve!');
+  };
 
   const TeamStats: React.FC<{ 
     teamId: 'A' | 'B';
@@ -261,15 +311,80 @@ export const StatsDialog: React.FC<StatsDialogProps> = ({
           </div>
         ) : (
           <div className="space-y-6">
+            {/* Export Buttons */}
+            <div className="flex gap-2 justify-center">
+              <Button onClick={exportToText} variant="outline" className="flex items-center gap-2">
+                <FileText className="h-4 w-4" />
+                Exportar Resumo
+              </Button>
+              <Button onClick={exportToImage} variant="outline" className="flex items-center gap-2">
+                <Image className="h-4 w-4" />
+                Exportar Detalhado
+              </Button>
+            </div>
+
+            {/* Possession */}
+            <Card>
+              <CardHeader>
+                <CardTitle className="text-center">Posse de Bola</CardTitle>
+              </CardHeader>
+              <CardContent>
+                <div className="flex items-center justify-between gap-4">
+                  <div className="text-center flex-1">
+                    <div 
+                      className="text-4xl font-bold mb-2"
+                      style={{ color: teamColors.A }}
+                    >
+                      {stats.teamA.possession.toFixed(0)}%
+                    </div>
+                    <div className="text-sm text-muted-foreground">{teamNames.A}</div>
+                  </div>
+                  <div className="text-2xl font-bold text-muted-foreground">VS</div>
+                  <div className="text-center flex-1">
+                    <div 
+                      className="text-4xl font-bold mb-2"
+                      style={{ color: teamColors.B }}
+                    >
+                      {stats.teamB.possession.toFixed(0)}%
+                    </div>
+                    <div className="text-sm text-muted-foreground">{teamNames.B}</div>
+                  </div>
+                </div>
+                <div className="mt-4">
+                  <div className="text-xs text-muted-foreground text-center mb-2">
+                    Intensidade de ações por zona do campo
+                  </div>
+                  <div className="w-full bg-muted rounded-full h-3 overflow-hidden">
+                    <div className="h-full flex">
+                      <div 
+                        className="h-full transition-all duration-500"
+                        style={{ 
+                          backgroundColor: teamColors.A,
+                          width: `${stats.teamA.possession}%`
+                        }}
+                      />
+                      <div 
+                        className="h-full transition-all duration-500"
+                        style={{ 
+                          backgroundColor: teamColors.B,
+                          width: `${stats.teamB.possession}%`
+                        }}
+                      />
+                    </div>
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
+
             {/* Summary */}
             <Card>
               <CardContent className="p-6">
                 <div className="text-center space-y-2">
-                  <h3 className="text-lg font-semibold">Resumo da Partida</h3>
+                  <h3 className="text-lg font-semibold">Estatísticas Detalhadas</h3>
                   <p className="text-3xl font-bold text-primary">{stats.total}</p>
                   <p className="text-muted-foreground">ações registradas no total</p>
                   
-                  <div className="flex justify-center gap-8 mt-4">
+                  <div className="grid grid-cols-3 gap-4 mt-6">
                     <div className="text-center">
                       <div 
                         className="text-2xl font-bold"
@@ -280,6 +395,11 @@ export const StatsDialog: React.FC<StatsDialogProps> = ({
                       <div className="text-sm text-muted-foreground">{teamNames.A}</div>
                     </div>
                     <div className="text-center">
+                      <div className="text-xl font-bold text-muted-foreground">
+                        ESTATÍSTICAS
+                      </div>
+                    </div>
+                    <div className="text-center">
                       <div 
                         className="text-2xl font-bold"
                         style={{ color: teamColors.B }}
@@ -288,6 +408,28 @@ export const StatsDialog: React.FC<StatsDialogProps> = ({
                       </div>
                       <div className="text-sm text-muted-foreground">{teamNames.B}</div>
                     </div>
+                  </div>
+
+                  {/* Action type comparison */}
+                  <div className="mt-6">
+                    {actionTypes.slice(0, 10).map(actionType => {
+                      const countA = stats.teamA.actionTypeStats.find(([name]) => name === actionType.name)?.[1] || 0;
+                      const countB = stats.teamB.actionTypeStats.find(([name]) => name === actionType.name)?.[1] || 0;
+                      
+                      return (
+                        <div key={actionType.id} className="flex items-center justify-between py-2 border-b last:border-0">
+                          <div className="text-sm font-medium text-center w-16" style={{ color: teamColors.A }}>
+                            {countA}
+                          </div>
+                          <div className="text-sm font-medium flex-1 text-center">
+                            {actionType.name}
+                          </div>
+                          <div className="text-sm font-medium text-center w-16" style={{ color: teamColors.B }}>
+                            {countB}
+                          </div>
+                        </div>
+                      );
+                    })}
                   </div>
                 </div>
               </CardContent>
