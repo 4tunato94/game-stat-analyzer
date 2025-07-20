@@ -41,6 +41,30 @@ const COLOR_PRESETS = [
     name: 'Rosa Moderno',
     colors: { primary: '#DB2777', secondary: '#BE185D', accent: '#F472B6', background: '#FCE7F3' }
   },
+  {
+    name: 'Amarelo Dourado',
+    colors: { primary: '#D97706', secondary: '#92400E', accent: '#FBBF24', background: '#FEF3C7' }
+  },
+  {
+    name: 'Ciano Oceano',
+    colors: { primary: '#0891B2', secondary: '#0E7490', accent: '#22D3EE', background: '#CFFAFE' }
+  },
+  {
+    name: 'Turquesa',
+    colors: { primary: '#0D9488', secondary: '#115E59', accent: '#2DD4BF', background: '#CCFBF1' }
+  },
+  {
+    name: 'Índigo',
+    colors: { primary: '#4F46E5', secondary: '#3730A3', accent: '#818CF8', background: '#E0E7FF' }
+  },
+  {
+    name: 'Cinza Elegante',
+    colors: { primary: '#374151', secondary: '#1F2937', accent: '#9CA3AF', background: '#F9FAFB' }
+  },
+  {
+    name: 'Marrom Terra',
+    colors: { primary: '#92400E', secondary: '#78350F', accent: '#D97706', background: '#FEF3C7' }
+  },
 ];
 
 export const ColorPalette: React.FC<ColorPaletteProps> = ({
@@ -101,21 +125,21 @@ export const ColorPalette: React.FC<ColorPaletteProps> = ({
 
         {/* Color Presets */}
         <div>
-          <Label className="text-sm">Paletas Predefinidas:</Label>
-          <div className="grid grid-cols-2 gap-2 mt-2">
+          <Label className="text-sm">Paletas Predefinidas (12 opções):</Label>
+          <div className="grid grid-cols-2 gap-2 mt-2 max-h-64 overflow-y-auto">
             {COLOR_PRESETS.map((preset) => (
               <Button
                 key={preset.name}
                 variant="outline"
                 size="sm"
                 onClick={() => applyPreset(preset)}
-                className="h-auto p-2 flex flex-col items-start"
+                className="h-auto p-2 flex flex-col items-start hover:scale-105 transition-transform"
               >
                 <div className="flex gap-1 mb-1">
                   {Object.values(preset.colors).slice(0, 3).map((color, i) => (
                     <div
                       key={i}
-                      className="w-3 h-3 rounded-full border border-white/50"
+                      className="w-4 h-4 rounded border border-white/50 shadow-sm"
                       style={{ backgroundColor: color }}
                     />
                   ))}

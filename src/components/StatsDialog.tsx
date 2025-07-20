@@ -20,6 +20,7 @@ interface StatsDialogProps {
   players: { A: Player[]; B: Player[] };
   teamColors: { A: string; B: string };
   teamNames: { A: string; B: string };
+  teamLogos?: { A?: string; B?: string };
 }
 
 export const StatsDialog: React.FC<StatsDialogProps> = ({
@@ -30,6 +31,7 @@ export const StatsDialog: React.FC<StatsDialogProps> = ({
   players,
   teamColors,
   teamNames,
+  teamLogos,
 }) => {
   const stats = useMemo(() => {
     const teamAActions = actions.filter(a => a.team === 'A');
@@ -165,18 +167,18 @@ ${actions.slice(0, 10).map(action => {
       <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
         <Card>
           <CardContent className="p-4">
-            <div className="flex items-center gap-3">
-              <div 
-                className="p-2 rounded-lg"
-                style={{ backgroundColor: `${teamColors[teamId]}20`, color: teamColors[teamId] }}
-              >
-                <Target className="h-5 w-5" />
-              </div>
-              <div>
-                <p className="text-sm text-muted-foreground">Total de Ações</p>
-                <p className="text-2xl font-bold">{teamStats.totalActions}</p>
-              </div>
-            </div>
+                  <div className="flex items-center gap-3">
+                    <div 
+                      className="p-2 rounded-lg"
+                      style={{ backgroundColor: `${teamColors[teamId]}20`, color: teamColors[teamId] }}
+                    >
+                      <Target className="h-5 w-5" />
+                    </div>
+                    <div>
+                      <p className="text-sm text-muted-foreground">Total de Ações</p>
+                      <p className="text-2xl font-bold">{teamStats.totalActions}</p>
+                    </div>
+                  </div>
           </CardContent>
         </Card>
 
@@ -339,7 +341,7 @@ ${actions.slice(0, 10).map(action => {
               </Button>
             </div>
 
-            {/* Possession with Enhanced Visualization */}
+            {/* Possession with Enhanced Visualization and Team Logos */}
             <Card>
               <CardHeader>
                 <CardTitle className="text-center">Posse de Bola</CardTitle>
@@ -370,6 +372,21 @@ ${actions.slice(0, 10).map(action => {
                   <div className="relative z-10">
                     <div className="flex items-center justify-between gap-4 mb-4">
                       <div className="text-center flex-1">
+                        {/* Team A Logo */}
+                        <div className="flex justify-center mb-2">
+                          {teamLogos?.A ? (
+                            <img 
+                              src={teamLogos.A} 
+                              alt={`Logo ${teamNames.A}`}
+                              className="w-12 h-12 rounded-full object-cover border-2 border-white shadow-lg"
+                            />
+                          ) : (
+                            <div 
+                              className="w-12 h-12 rounded-full border-2 border-white shadow-lg"
+                              style={{ backgroundColor: teamColors.A }}
+                            />
+                          )}
+                        </div>
                         <div 
                           className="text-4xl font-bold mb-2"
                           style={{ color: teamColors.A }}
@@ -396,6 +413,21 @@ ${actions.slice(0, 10).map(action => {
                       <div className="text-2xl font-bold text-muted-foreground">VS</div>
                       
                       <div className="text-center flex-1">
+                        {/* Team B Logo */}
+                        <div className="flex justify-center mb-2">
+                          {teamLogos?.B ? (
+                            <img 
+                              src={teamLogos.B} 
+                              alt={`Logo ${teamNames.B}`}
+                              className="w-12 h-12 rounded-full object-cover border-2 border-white shadow-lg"
+                            />
+                          ) : (
+                            <div 
+                              className="w-12 h-12 rounded-full border-2 border-white shadow-lg"
+                              style={{ backgroundColor: teamColors.B }}
+                            />
+                          )}
+                        </div>
                         <div 
                           className="text-4xl font-bold mb-2"
                           style={{ color: teamColors.B }}

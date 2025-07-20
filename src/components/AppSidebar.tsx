@@ -80,7 +80,7 @@ export const AppSidebar: React.FC<AppSidebarProps> = ({
       {/* Persistent Toggle Button */}
       <div className="absolute top-1/2 -right-4 transform -translate-y-1/2 z-50">
         <SidebarTrigger className="h-8 w-8 rounded-full bg-black/20 hover:bg-black/40 backdrop-blur-sm border border-white/20 p-0 transition-all duration-300">
-          <span className="text-white text-sm">›</span>
+          <span className="text-white text-sm">{collapsed ? '›' : '‹'}</span>
         </SidebarTrigger>
       </div>
       

@@ -134,11 +134,11 @@ const Index = () => {
 
         {/* Main Content */}
         <main className="flex-1 flex flex-col min-h-screen">
-          {/* Mobile Header */}
-          <header className={`h-14 md:h-16 border-b flex items-center px-2 md:px-4 gap-2 md:gap-4 sticky top-0 z-40 transition-all duration-300 ${
+          {/* Mobile Header - Hidden on mobile when field is in focus */}
+          <header className={`h-14 md:h-16 border-b flex items-center px-2 md:px-4 gap-2 md:gap-4 sticky top-0 z-40 transition-all duration-300 md:bg-card/80 md:backdrop-blur-md md:opacity-95 ${
             headerVisible 
-              ? 'bg-card/80 backdrop-blur-md opacity-95' 
-              : 'bg-card/20 backdrop-blur-sm opacity-40 pointer-events-none'
+              ? 'bg-card/40 backdrop-blur-sm opacity-70 md:bg-card/80 md:opacity-95' 
+              : 'bg-transparent opacity-0 pointer-events-none md:bg-card/80 md:opacity-95 md:pointer-events-auto'
           }`}>
             
             <div className="flex-1 flex items-center justify-center">
@@ -191,12 +191,6 @@ const Index = () => {
                   )}
                   <div className="text-center">
                     <div className="font-bold text-lg">{gameState.teams.A.name}</div>
-                    <div className="text-sm text-muted-foreground">
-                      {gameState.actions.filter(a => a.team === 'A').length} ações
-                    </div>
-                    <div className="mt-1 text-xs font-medium" style={{ color: gameState.teams.A.color }}>
-                      {gameState.actions.length > 0 ? Math.round((gameState.actions.filter(a => a.team === 'A').length / gameState.actions.length) * 100) : 0}% posse
-                    </div>
                   </div>
                 </div>
 
@@ -211,12 +205,6 @@ const Index = () => {
                 <div className="flex items-center gap-3">
                   <div className="text-center">
                     <div className="font-bold text-lg">{gameState.teams.B.name}</div>
-                    <div className="text-sm text-muted-foreground">
-                      {gameState.actions.filter(a => a.team === 'B').length} ações
-                    </div>
-                    <div className="mt-1 text-xs font-medium" style={{ color: gameState.teams.B.color }}>
-                      {gameState.actions.length > 0 ? Math.round((gameState.actions.filter(a => a.team === 'B').length / gameState.actions.length) * 100) : 0}% posse
-                    </div>
                   </div>
                   {gameState.teams.B.logo ? (
                     <img 
@@ -325,6 +313,10 @@ const Index = () => {
           teamNames={{
             A: gameState.teams.A.name,
             B: gameState.teams.B.name,
+          }}
+          teamLogos={{
+            A: gameState.teams.A.logo,
+            B: gameState.teams.B.logo,
           }}
         />
 

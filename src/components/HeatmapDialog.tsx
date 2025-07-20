@@ -260,28 +260,38 @@ export const HeatmapDialog: React.FC<HeatmapDialogProps> = ({
               className="w-full h-auto rounded-lg"
             />
             
-            {/* Heat overlay with improved colors */}
+      {/* Heat overlay with improved colors and percentage display */}
             <div className="absolute inset-0 rounded-lg overflow-hidden">
               {ZONES.map((zone) => {
                 const count = teamData.zones[zone.id] || 0;
                 const intensity = count > 0 ? count / teamData.max : 0;
+                const percentage = teamData.total > 0 ? ((count / teamData.total) * 100).toFixed(1) : '0.0';
                 const position = getZonePosition(zone.id);
-                
-                if (count === 0) return null;
                 
                 return (
                   <div
                     key={zone.id}
-                    className="absolute transition-all duration-300 border border-white/20 flex items-center justify-center"
+                    className="absolute transition-all duration-300 border border-white/30 flex flex-col items-center justify-center text-center p-1"
                     style={{
                       ...position,
-                      backgroundColor: `${getIntensityColor(intensity)}${Math.round(intensity * 0.7 * 255).toString(16).padStart(2, '0')}`,
+                      backgroundColor: count > 0 
+                        ? `${getIntensityColor(intensity)}${Math.round(intensity * 0.8 * 255).toString(16).padStart(2, '0')}` 
+                        : 'rgba(255, 255, 255, 0.1)',
                     }}
-                    title={`${zone.name}: ${count} ações`}
+                    title={`${zone.name}: ${count} ações (${percentage}%)`}
                   >
-                    {count > 0 && (
-                      <div className="text-white text-xs font-bold drop-shadow-lg">
-                        {count}
+                    {count > 0 ? (
+                      <>
+                        <div className="text-white text-sm font-bold drop-shadow-lg">
+                          {percentage}%
+                        </div>
+                        <div className="text-white text-xs drop-shadow-lg">
+                          {count}
+                        </div>
+                      </>
+                    ) : (
+                      <div className="text-gray-400 text-xs">
+                        0.0%
                       </div>
                     )}
                   </div>
