@@ -199,8 +199,18 @@
 
   /* Mobile optimization */
   .field-mobile-optimized {
-    @apply h-[60vh] sm:h-[70vh] md:h-[80vh];
+    @apply h-[65vh] sm:h-[75vh] md:h-[85vh];
     @apply max-w-full w-full;
+  }
+
+  @media (max-width: 768px) {
+    .field-mobile-optimized {
+      @apply h-[70vh];
+    }
+    
+    .field-container {
+      @apply p-2;
+    }
   }
 
   .main-content-mobile {

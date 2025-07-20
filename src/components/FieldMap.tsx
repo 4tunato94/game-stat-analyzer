@@ -49,16 +49,6 @@ export const FieldMap: React.FC<FieldMapProps> = ({ onZoneClick }) => {
     <div className="field-container relative field-mobile-optimized">
       {/* Zone overlay for visual feedback */}
       <div className="absolute inset-0 pointer-events-none z-10 rounded-2xl overflow-hidden">
-        {/* Grid visualization for development - remove in production */}
-        <div className="absolute inset-0 grid grid-cols-5 border border-white/20">
-          {Array.from({ length: 23 }, (_, i) => (
-            <div
-              key={i}
-              className="border border-white/10 flex items-center justify-center text-xs text-white/50"
-            />
-          ))}
-        </div>
-        
         {/* Click animation */}
         {clickPosition && (
           <div
