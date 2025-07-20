@@ -16,57 +16,6 @@ interface ColorPaletteProps {
   teamName: string;
 }
 
-const COLOR_PRESETS = [
-  {
-    name: 'Azul Clássico',
-    colors: { primary: '#0066CC', secondary: '#004499', accent: '#3399FF', background: '#E6F3FF' }
-  },
-  {
-    name: 'Vermelho Intenso',
-    colors: { primary: '#DC2626', secondary: '#B91C1C', accent: '#F87171', background: '#FEE2E2' }
-  },
-  {
-    name: 'Verde Floresta',
-    colors: { primary: '#059669', secondary: '#047857', accent: '#34D399', background: '#D1FAE5' }
-  },
-  {
-    name: 'Roxo Real',
-    colors: { primary: '#7C3AED', secondary: '#5B21B6', accent: '#A78BFA', background: '#EDE9FE' }
-  },
-  {
-    name: 'Laranja Energia',
-    colors: { primary: '#EA580C', secondary: '#C2410C', accent: '#FB923C', background: '#FED7AA' }
-  },
-  {
-    name: 'Rosa Moderno',
-    colors: { primary: '#DB2777', secondary: '#BE185D', accent: '#F472B6', background: '#FCE7F3' }
-  },
-  {
-    name: 'Amarelo Dourado',
-    colors: { primary: '#D97706', secondary: '#92400E', accent: '#FBBF24', background: '#FEF3C7' }
-  },
-  {
-    name: 'Ciano Oceano',
-    colors: { primary: '#0891B2', secondary: '#0E7490', accent: '#22D3EE', background: '#CFFAFE' }
-  },
-  {
-    name: 'Turquesa',
-    colors: { primary: '#0D9488', secondary: '#115E59', accent: '#2DD4BF', background: '#CCFBF1' }
-  },
-  {
-    name: 'Índigo',
-    colors: { primary: '#4F46E5', secondary: '#3730A3', accent: '#818CF8', background: '#E0E7FF' }
-  },
-  {
-    name: 'Cinza Elegante',
-    colors: { primary: '#374151', secondary: '#1F2937', accent: '#9CA3AF', background: '#F9FAFB' }
-  },
-  {
-    name: 'Marrom Terra',
-    colors: { primary: '#92400E', secondary: '#78350F', accent: '#D97706', background: '#FEF3C7' }
-  },
-];
-
 export const ColorPalette: React.FC<ColorPaletteProps> = ({
   colors,
   onColorsChange,
@@ -77,10 +26,6 @@ export const ColorPalette: React.FC<ColorPaletteProps> = ({
       ...colors,
       [colorKey]: value,
     });
-  };
-
-  const applyPreset = (preset: typeof COLOR_PRESETS[0]) => {
-    onColorsChange(preset.colors);
   };
 
   const generateRandomColors = () => {
@@ -98,7 +43,7 @@ export const ColorPalette: React.FC<ColorPaletteProps> = ({
       <CardHeader>
         <CardTitle className="flex items-center gap-2">
           <Palette className="h-5 w-5" />
-          Paleta de Cores - {teamName}
+          Cores do {teamName}
         </CardTitle>
       </CardHeader>
       <CardContent className="space-y-4">
@@ -123,31 +68,76 @@ export const ColorPalette: React.FC<ColorPaletteProps> = ({
           </div>
         </div>
 
-        {/* Color Presets */}
-        <div>
-          <Label className="text-sm">Paletas Predefinidas (12 opções):</Label>
-          <div className="grid grid-cols-2 gap-2 mt-2 max-h-64 overflow-y-auto">
-            {COLOR_PRESETS.map((preset) => (
-              <Button
-                key={preset.name}
-                variant="outline"
-                size="sm"
-                onClick={() => applyPreset(preset)}
-                className="h-auto p-2 flex flex-col items-start hover:scale-105 transition-transform"
-              >
-                <div className="flex gap-1 mb-1">
-                  {Object.values(preset.colors).slice(0, 3).map((color, i) => (
-                    <div
-                      key={i}
-                      className="w-4 h-4 rounded border border-white/50 shadow-sm"
-                      style={{ backgroundColor: color }}
-                    />
-                  ))}
-                </div>
-                <span className="text-xs">{preset.name}</span>
-              </Button>
-            ))}
+        {/* Individual Color Selectors */}
+        <div className="space-y-4">
+          <div className="grid grid-cols-1 gap-3">
+            <div>
+              <Label htmlFor={`primary-${teamName}`} className="text-sm font-medium">Cor Principal</Label>
+              <div className="flex gap-2 items-center mt-1">
+                <input
+                  id={`primary-${teamName}`}
+                  type="color"
+                  value={colors.primary}
+                  onChange={(e) => handleColorChange('primary', e.target.value)}
+                  className="w-12 h-10 rounded border border-input cursor-pointer"
+                />
+                <Input
+                  value={colors.primary}
+                  onChange={(e) => handleColorChange('primary', e.target.value)}
+                  placeholder="#000000"
+                  className="flex-1"
+                />
+              </div>
+            </div>
+
+            <div>
+              <Label htmlFor={`secondary-${teamName}`} className="text-sm font-medium">Cor Secundária</Label>
+              <div className="flex gap-2 items-center mt-1">
+                <input
+                  id={`secondary-${teamName}`}
+                  type="color"
+                  value={colors.secondary}
+                  onChange={(e) => handleColorChange('secondary', e.target.value)}
+                  className="w-12 h-10 rounded border border-input cursor-pointer"
+                />
+                <Input
+                  value={colors.secondary}
+                  onChange={(e) => handleColorChange('secondary', e.target.value)}
+                  placeholder="#000000"
+                  className="flex-1"
+                />
+              </div>
+            </div>
+
+            <div>
+              <Label htmlFor={`accent-${teamName}`} className="text-sm font-medium">Cor de Destaque</Label>
+              <div className="flex gap-2 items-center mt-1">
+                <input
+                  id={`accent-${teamName}`}
+                  type="color"
+                  value={colors.accent}
+                  onChange={(e) => handleColorChange('accent', e.target.value)}
+                  className="w-12 h-10 rounded border border-input cursor-pointer"
+                />
+                <Input
+                  value={colors.accent}
+                  onChange={(e) => handleColorChange('accent', e.target.value)}
+                  placeholder="#000000"
+                  className="flex-1"
+                />
+              </div>
+            </div>
           </div>
+
+          {/* Random Colors Button */}
+          <Button
+            onClick={generateRandomColors}
+            variant="outline"
+            className="w-full flex items-center gap-2"
+          >
+            <RefreshCw className="h-4 w-4" />
+            Gerar Cores Aleatórias
+          </Button>
         </div>
       </CardContent>
     </Card>

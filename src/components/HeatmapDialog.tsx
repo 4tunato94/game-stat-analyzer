@@ -181,10 +181,30 @@ export const HeatmapDialog: React.FC<HeatmapDialogProps> = ({
       const element = heatmapRef.current;
       if (!element) return;
       
+      // Wait a bit for styles to settle
+      await new Promise(resolve => setTimeout(resolve, 100));
+      
       const canvas = await html2canvas(element, {
         backgroundColor: '#ffffff',
         scale: 2,
         useCORS: true,
+        allowTaint: true,
+        foreignObjectRendering: true,
+        logging: false,
+        onclone: (clonedDoc) => {
+          // Ensure colors are preserved in cloned document
+          const clonedElement = clonedDoc.querySelector('[data-heatmap-export]');
+          if (clonedElement) {
+            const overlays = clonedElement.querySelectorAll('[data-zone-overlay]');
+            overlays.forEach((overlay: any) => {
+              const originalBg = overlay.style.backgroundColor;
+              if (originalBg) {
+                overlay.style.backgroundColor = originalBg;
+                overlay.style.opacity = overlay.style.opacity || '0.8';
+              }
+            });
+          }
+        }
       });
       
       const link = document.createElement('a');
@@ -397,7 +417,7 @@ export const HeatmapDialog: React.FC<HeatmapDialogProps> = ({
         <DialogHeader>
           <DialogTitle className="flex items-center gap-2">
             <Flame className="h-6 w-6" />
-            Mapa de Calor das Ações
+            Mapas de Calor por Time
           </DialogTitle>
         </DialogHeader>
 
@@ -410,38 +430,52 @@ export const HeatmapDialog: React.FC<HeatmapDialogProps> = ({
             </p>
           </div>
         ) : (
-          <Tabs defaultValue="A">
-            <TabsList className="grid w-full grid-cols-2">
-              <TabsTrigger 
-                value="A"
-                className="flex items-center gap-2"
-              >
-                <div 
-                  className="w-3 h-3 rounded-full"
-                  style={{ backgroundColor: teamColors.A }}
-                />
-                {teamNames.A}
-              </TabsTrigger>
-              <TabsTrigger 
-                value="B"
-                className="flex items-center gap-2"
-              >
-                <div 
-                  className="w-3 h-3 rounded-full"
-                  style={{ backgroundColor: teamColors.B }}
-                />
-                {teamNames.B}
-              </TabsTrigger>
-            </TabsList>
+          <div className="space-y-6">
+            {/* Export Buttons */}
+            <div className="flex gap-2 justify-center">
+              <Button onClick={exportHeatmap} variant="outline" className="flex items-center gap-2">
+                <Image className="h-4 w-4" />
+                Exportar Time A
+              </Button>
+              <Button onClick={exportHeatmap} variant="outline" className="flex items-center gap-2">
+                <Image className="h-4 w-4" />
+                Exportar Time B
+              </Button>
+            </div>
 
-            <TabsContent value="A" className="mt-6">
-              <TeamHeatmap teamId="A" teamData={heatmapData.teamA} />
-            </TabsContent>
+            <Tabs defaultValue="A">
+              <TabsList className="grid w-full grid-cols-2">
+                <TabsTrigger 
+                  value="A"
+                  className="flex items-center gap-2"
+                >
+                  <div 
+                    className="w-3 h-3 rounded-full"
+                    style={{ backgroundColor: teamColors.A }}
+                  />
+                  {teamNames.A}
+                </TabsTrigger>
+                <TabsTrigger 
+                  value="B"
+                  className="flex items-center gap-2"
+                >
+                  <div 
+                    className="w-3 h-3 rounded-full"
+                    style={{ backgroundColor: teamColors.B }}
+                  />
+                  {teamNames.B}
+                </TabsTrigger>
+              </TabsList>
 
-            <TabsContent value="B" className="mt-6">
-              <TeamHeatmap teamId="B" teamData={heatmapData.teamB} />
-            </TabsContent>
-          </Tabs>
+              <TabsContent value="A" className="mt-6">
+                <TeamHeatmap teamId="A" teamData={heatmapData.teamA} />
+              </TabsContent>
+
+              <TabsContent value="B" className="mt-6">
+                <TeamHeatmap teamId="B" teamData={heatmapData.teamB} />
+              </TabsContent>
+            </Tabs>
+          </div>
         )}
       </DialogContent>
     </Dialog>
