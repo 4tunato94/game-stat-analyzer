@@ -60,7 +60,7 @@ export const FieldMap: React.FC<FieldMapProps> = ({ onZoneClick, onActionComplet
   if (isFullscreen) {
     return (
       <div className="fixed inset-0 z-50 bg-black flex items-center justify-center">
-        <div className="relative w-full h-full p-0">
+        <div className="relative w-full h-full">
           <Button
             onClick={toggleFullscreen}
             variant="ghost"
@@ -110,12 +110,17 @@ export const FieldMap: React.FC<FieldMapProps> = ({ onZoneClick, onActionComplet
             src={fieldImage}
             alt="Campo de Futebol"
             className="w-full h-full object-cover"
+            style={{ 
+              objectPosition: 'center',
+              minHeight: '100vh',
+              minWidth: '100vw'
+            }}
             draggable={false}
           />
           </div>
 
           {/* Instructions only */}
-          <div className="absolute bottom-4 right-4 bg-black/80 text-white px-6 py-3 rounded-lg text-base font-medium z-20 backdrop-blur-sm border border-white/20">
+          <div className="absolute bottom-4 right-4 bg-black/80 text-white px-6 py-3 rounded-lg text-base font-medium z-20 backdrop-blur-sm border border-white/20 max-w-xs">
             Toque em qualquer zona do campo para registrar uma ação
           </div>
         </div>
