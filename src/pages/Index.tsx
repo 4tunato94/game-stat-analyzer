@@ -135,12 +135,11 @@ const Index = () => {
         {/* Main Content */}
         <main className="flex-1 flex flex-col min-h-screen">
           {/* Mobile Header */}
-          <header className={`h-14 md:h-16 border-b flex items-center px-2 md:px-4 gap-2 md:gap-4 sticky top-0 z-40 transition-all duration-300 md:bg-card md:opacity-100 ${
+          <header className={`h-14 md:h-16 border-b flex items-center px-2 md:px-4 gap-2 md:gap-4 sticky top-0 z-40 transition-all duration-300 ${
             headerVisible 
-              ? 'bg-card/95 backdrop-blur-sm opacity-100' 
-              : 'bg-card/40 backdrop-blur-sm opacity-60 pointer-events-none'
+              ? 'bg-card/80 backdrop-blur-md opacity-95' 
+              : 'bg-card/20 backdrop-blur-sm opacity-40 pointer-events-none'
           }`}>
-            <SidebarTrigger className={`h-8 w-8 md:h-10 md:w-10 transition-opacity duration-300 ${headerVisible ? 'pointer-events-auto' : 'pointer-events-none opacity-30'}`} />
             
             <div className="flex-1 flex items-center justify-center">
               {/* Mobile Layout */}
@@ -236,15 +235,15 @@ const Index = () => {
             </div>
 
             {/* Mobile Timer and Edit Teams Button */}
-            <div className={`flex items-center gap-1 md:gap-2 transition-opacity duration-300 ${headerVisible ? 'pointer-events-auto' : 'pointer-events-none opacity-30'}`}>
+            <div className={`flex items-center gap-1 md:gap-2 transition-opacity duration-300 ${headerVisible ? 'pointer-events-auto opacity-100' : 'pointer-events-none opacity-30'}`}>
               <div className="text-xs md:text-sm font-mono">
                 {formatGameTime(gameState.currentTime)}
               </div>
-               <Button
+              <Button
                 variant="ghost"
                 size="sm"
                 onClick={() => setTeamEditDialogOpen(true)}
-                className="h-8 w-8 p-0 md:h-auto md:w-auto md:px-2"
+                className="h-8 w-8 p-0 md:h-auto md:w-auto md:px-2 hover:bg-white/10"
               >
                 <span className="hidden md:inline">Editar Times</span>
                 <span className="md:hidden text-xs">⚙️</span>
