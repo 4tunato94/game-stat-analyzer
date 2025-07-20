@@ -49,7 +49,7 @@ export const AppSidebar: React.FC<AppSidebarProps> = ({
   onOpenHeatmapDialog,
   onOpenActionTypesDialog,
 }) => {
-  const { state } = useSidebar();
+  const { state, toggleSidebar } = useSidebar();
   const collapsed = state === 'collapsed';
 
   const menuItems = [
@@ -79,9 +79,12 @@ export const AppSidebar: React.FC<AppSidebarProps> = ({
     <Sidebar className={collapsed ? 'w-16' : 'w-80'}>
       {/* Persistent Toggle Button */}
       <div className="absolute top-1/2 -right-4 transform -translate-y-1/2 z-50">
-        <SidebarTrigger className="h-8 w-8 rounded-full bg-black/20 hover:bg-black/40 backdrop-blur-sm border border-white/20 p-0 transition-all duration-300">
+        <button
+          onClick={toggleSidebar}
+          className="h-8 w-8 rounded-full bg-black/20 hover:bg-black/40 backdrop-blur-sm border border-white/20 p-0 transition-all duration-300 flex items-center justify-center"
+        >
           <span className="text-white text-sm">{collapsed ? '›' : '‹'}</span>
-        </SidebarTrigger>
+        </button>
       </div>
       
       <SidebarContent className="p-4">
