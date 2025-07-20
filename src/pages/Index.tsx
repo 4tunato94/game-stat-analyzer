@@ -252,8 +252,8 @@ const Index = () => {
               </Card>
             </div>
 
-            {/* Recent Actions - Hidden on mobile in fullscreen, shown on desktop */}
-            <div className="hidden md:block p-6 pt-0">
+            {/* Recent Actions - Always visible */}
+            <div className="p-2 md:p-6 pt-0">
               <RecentActions
                 actions={gameState.actions}
                 actionTypes={actionTypes}

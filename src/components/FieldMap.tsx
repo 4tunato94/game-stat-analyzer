@@ -80,34 +80,36 @@ export const FieldMap: React.FC<FieldMapProps> = ({ onZoneClick }) => {
             
             {/* Zone representations */}
             <div className="w-full h-full relative">
-              {/* Dynamic zone indicators based on click position */}
-              {clickPosition && (
-                <div
-                  className="absolute bg-primary/20 border-2 border-primary rounded-lg backdrop-blur-sm transition-all duration-500"
-                  style={{
-                    left: `${Math.floor((clickPosition.x / (imageRef.current?.getBoundingClientRect().width || 1)) * 5) * 20}%`,
-                    top: `${Math.floor((clickPosition.y / (imageRef.current?.getBoundingClientRect().height || 1)) * 5) * 20}%`,
-                    width: '20%',
-                    height: '20%',
-                  }}
-                />
-              )}
+            {/* Zone representation on click */}
+            {clickPosition && (
+              <div
+                className="absolute bg-primary/30 border-2 border-primary rounded-lg backdrop-blur-sm transition-all duration-500 flex items-center justify-center text-white font-bold text-lg"
+                style={{
+                  left: `${Math.floor((clickPosition.x / (imageRef.current?.getBoundingClientRect().width || 1)) * 5) * 20}%`,
+                  top: `${Math.floor((clickPosition.y / (imageRef.current?.getBoundingClientRect().height || 1)) * 5) * 20}%`,
+                  width: '20%',
+                  height: '20%',
+                }}
+              >
+                ZONA
+              </div>
+            )}
             </div>
           </div>
 
-          <div
-            className="relative w-full h-full cursor-pointer select-none"
-            onClick={handleClick}
-            onMouseMove={handleMouseMove}
-            onMouseLeave={handleMouseLeave}
-          >
-            <img
-              ref={imageRef}
-              src={fieldImage}
-              alt="Campo de Futebol"
-              className="w-full h-full object-cover"
-              draggable={false}
-            />
+        <div
+          className="relative w-full h-full cursor-pointer select-none"
+          onClick={handleClick}
+          onMouseMove={handleMouseMove}
+          onMouseLeave={handleMouseLeave}
+        >
+          <img
+            ref={imageRef}
+            src={fieldImage}
+            alt="Campo de Futebol"
+            className="w-full h-full object-contain"
+            draggable={false}
+          />
           </div>
 
           {/* Instructions only */}
@@ -143,14 +145,16 @@ export const FieldMap: React.FC<FieldMapProps> = ({ onZoneClick }) => {
               }}
             />
             <div
-              className="absolute bg-primary/10 border-2 border-primary/50 rounded-lg backdrop-blur-sm transition-all duration-300"
+              className="absolute bg-primary/20 border-2 border-primary rounded-lg backdrop-blur-sm transition-all duration-300 flex items-center justify-center text-white font-semibold text-sm"
               style={{
                 left: `${Math.floor((clickPosition.x / (imageRef.current?.getBoundingClientRect().width || 1)) * 5) * 20}%`,
                 top: `${Math.floor((clickPosition.y / (imageRef.current?.getBoundingClientRect().height || 1)) * 5) * 20}%`,
                 width: '20%',
                 height: '20%',
               }}
-            />
+            >
+              ZONA
+            </div>
           </>
         )}
       </div>
@@ -166,7 +170,7 @@ export const FieldMap: React.FC<FieldMapProps> = ({ onZoneClick }) => {
           ref={imageRef}
           src={fieldImage}
           alt="Campo de Futebol"
-          className="w-full h-full object-cover rounded-xl shadow-lg"
+          className="w-full h-full object-contain rounded-xl shadow-lg"
           draggable={false}
         />
         

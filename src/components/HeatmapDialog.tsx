@@ -278,6 +278,7 @@ export const HeatmapDialog: React.FC<HeatmapDialogProps> = ({
               src={fieldImage}
               alt="Campo de Futebol"
               className="w-full h-auto rounded-lg"
+              style={{ display: 'block' }}
             />
             
       {/* Heat overlay with improved colors and percentage display */}
@@ -414,7 +415,7 @@ export const HeatmapDialog: React.FC<HeatmapDialogProps> = ({
 
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
-      <DialogContent className="max-w-6xl max-h-[95vh] overflow-y-auto">
+      <DialogContent className="max-w-6xl max-h-[95vh] overflow-y-auto" onInteractOutside={(e) => e.preventDefault()}>
         <DialogHeader>
           <DialogTitle className="flex items-center gap-2">
             <Flame className="h-6 w-6" />
