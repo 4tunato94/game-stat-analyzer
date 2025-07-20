@@ -240,7 +240,7 @@ const Index = () => {
               <div className="text-xs md:text-sm font-mono">
                 {formatGameTime(gameState.currentTime)}
               </div>
-              <Button
+               <Button
                 variant="ghost"
                 size="sm"
                 onClick={() => setTeamEditDialogOpen(true)}

@@ -79,14 +79,8 @@ export const AppSidebar: React.FC<AppSidebarProps> = ({
     <Sidebar className={collapsed ? 'w-16' : 'w-80'}>
       {/* Persistent Toggle Button */}
       <div className="absolute top-1/2 -right-6 transform -translate-y-1/2 z-50">
-        <SidebarTrigger asChild>
-          <Button 
-            variant="default" 
-            size="sm" 
-            className="h-10 w-10 rounded-full shadow-lg bg-primary hover:bg-primary/90"
-          >
-            <Menu className="h-4 w-4" />
-          </Button>
+        <SidebarTrigger className="h-10 w-10 rounded-full shadow-lg bg-primary hover:bg-primary/90 p-0">
+          <Menu className="h-4 w-4" />
         </SidebarTrigger>
       </div>
       
