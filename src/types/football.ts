@@ -4,6 +4,13 @@ export interface Team {
   id: 'A' | 'B';
   name: string;
   color: string; // hex color
+  logo?: string; // URL or path to logo image
+  colors?: {
+    primary: string;
+    secondary: string;
+    accent: string;
+    background: string;
+  };
 }
 
 export interface Player {

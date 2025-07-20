@@ -146,11 +146,25 @@
   .team-a-btn {
     @apply text-white shadow-lg hover:shadow-xl;
     @apply hover:scale-105 active:scale-95 transition-all duration-200;
+    background: var(--team-a-gradient, linear-gradient(135deg, var(--team-a-primary, #2563eb), var(--team-a-secondary, #1d4ed8)));
   }
   
   .team-b-btn {
     @apply text-white shadow-lg hover:shadow-xl;
     @apply hover:scale-105 active:scale-95 transition-all duration-200;
+    background: var(--team-b-gradient, linear-gradient(135deg, var(--team-b-primary, #dc2626), var(--team-b-secondary, #b91c1c)));
+  }
+
+  /* Team logo styles */
+  .team-logo {
+    @apply rounded-full object-cover border-2 border-white shadow-lg;
+    @apply transition-transform duration-200 hover:scale-110;
+  }
+
+  /* Team color indicators */
+  .team-color-indicator {
+    @apply rounded-full border-2 border-white shadow-lg;
+    @apply transition-transform duration-200;
   }
   
   /* Field container */
@@ -165,4 +179,22 @@
     @apply bg-card border border-border rounded-xl p-6;
     box-shadow: 0 10px 40px hsl(var(--foreground) / 0.1);
   }
+
+  /* Dynamic team color classes */
+  .bg-team-a-primary { background-color: var(--team-a-primary, #2563eb); }
+  .bg-team-a-secondary { background-color: var(--team-a-secondary, #1d4ed8); }
+  .bg-team-a-accent { background-color: var(--team-a-accent, #3b82f6); }
+  .bg-team-a-background { background-color: var(--team-a-background, #eff6ff); }
+  
+  .bg-team-b-primary { background-color: var(--team-b-primary, #dc2626); }
+  .bg-team-b-secondary { background-color: var(--team-b-secondary, #b91c1c); }
+  .bg-team-b-accent { background-color: var(--team-b-accent, #ef4444); }
+  .bg-team-b-background { background-color: var(--team-b-background, #fef2f2); }
+
+  .text-team-a-primary { color: var(--team-a-primary, #2563eb); }
+  .text-team-b-primary { color: var(--team-b-primary, #dc2626); }
+
+  .border-team-a-primary { border-color: var(--team-a-primary, #2563eb); }
+  .border-team-b-primary { border-color: var(--team-b-primary, #dc2626); }
+}
 }

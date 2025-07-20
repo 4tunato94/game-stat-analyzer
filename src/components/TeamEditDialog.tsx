@@ -9,8 +9,11 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Settings, Palette } from 'lucide-react';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { Settings, Palette, ImageIcon } from 'lucide-react';
 import { Team } from '@/types/football';
+import { LogoSelector } from './LogoSelector';
+import { ColorPalette } from './ColorPalette';
 
 interface TeamEditDialogProps {
   isOpen: boolean;
@@ -25,103 +28,145 @@ export const TeamEditDialog: React.FC<TeamEditDialogProps> = ({
   teams,
   onUpdateTeam,
 }) => {
-  const [teamA, setTeamA] = useState(teams.A);
-  const [teamB, setTeamB] = useState(teams.B);
+  const [teamA, setTeamA] = useState({
+    ...teams.A,
+    colors: teams.A.colors || { primary: teams.A.color, secondary: teams.A.color, accent: teams.A.color, background: '#f8f9fa' }
+  });
+  const [teamB, setTeamB] = useState({
+    ...teams.B,
+    colors: teams.B.colors || { primary: teams.B.color, secondary: teams.B.color, accent: teams.B.color, background: '#f8f9fa' }
+  });
 
   const handleSave = () => {
-    onUpdateTeam('A', teamA);
-    onUpdateTeam('B', teamB);
+    // Update primary color to match the primary from colors palette
+    const updatedTeamA = { ...teamA, color: teamA.colors?.primary || teamA.color };
+    const updatedTeamB = { ...teamB, color: teamB.colors?.primary || teamB.color };
+    
+    onUpdateTeam('A', updatedTeamA);
+    onUpdateTeam('B', updatedTeamB);
     onClose();
   };
 
-  const predefinedColors = [
-    '#0066CC', '#FF4444', '#00AA44', '#FF8800', 
-    '#8844CC', '#00CCCC', '#CC4488', '#CCAA00'
-  ];
-
-  const TeamEditor: React.FC<{ 
-    team: Team; 
-    onChange: (team: Team) => void; 
-    label: string 
-  }> = ({ team, onChange, label }) => (
-    <Card>
-      <CardHeader>
-        <CardTitle className="flex items-center gap-2">
-          <div 
-            className="w-4 h-4 rounded-full border border-white"
-            style={{ backgroundColor: team.color }}
-          />
-          {label}
-        </CardTitle>
-      </CardHeader>
-      <CardContent className="space-y-4">
-        <div>
-          <Label htmlFor={`name-${team.id}`}>Nome do Time</Label>
-          <Input
-            id={`name-${team.id}`}
-            value={team.name}
-            onChange={(e) => onChange({ ...team, name: e.target.value })}
-            placeholder="Digite o nome do time"
-          />
-        </div>
-        
-        <div>
-          <Label>Cor do Time</Label>
-          <div className="flex items-center gap-3 mt-2">
-            <Input
-              type="color"
-              value={team.color}
-              onChange={(e) => onChange({ ...team, color: e.target.value })}
-              className="w-16 h-10 p-1 rounded"
-            />
-            <div className="flex gap-1 flex-wrap">
-              {predefinedColors.map((color) => (
-                <button
-                  key={color}
-                  type="button"
-                  className="w-6 h-6 rounded border border-white/30 hover:scale-110 transition-transform"
-                  style={{ backgroundColor: color }}
-                  onClick={() => onChange({ ...team, color })}
-                />
-              ))}
-            </div>
-          </div>
-        </div>
-      </CardContent>
-    </Card>
-  );
-
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
-      <DialogContent className="max-w-md">
+      <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto">
         <DialogHeader>
           <DialogTitle className="flex items-center gap-2">
             <Settings className="h-5 w-5" />
-            Editar Nomes dos Times
+            Personalizar Times
           </DialogTitle>
         </DialogHeader>
 
-        <div className="space-y-4">
-          <TeamEditor
-            team={teamA}
-            onChange={setTeamA}
-            label="Time A"
-          />
-          
-          <TeamEditor
-            team={teamB}
-            onChange={setTeamB}
-            label="Time B"
-          />
+        <Tabs defaultValue="teamA" className="w-full">
+          <TabsList className="grid w-full grid-cols-2">
+            <TabsTrigger value="teamA" className="flex items-center gap-2">
+              {teamA.logo && (
+                <img src={teamA.logo} alt="Logo A" className="w-4 h-4 rounded-full object-cover" />
+              )}
+              <div 
+                className="w-3 h-3 rounded-full border border-white"
+                style={{ backgroundColor: teamA.colors?.primary || teamA.color }}
+              />
+              {teamA.name}
+            </TabsTrigger>
+            <TabsTrigger value="teamB" className="flex items-center gap-2">
+              {teamB.logo && (
+                <img src={teamB.logo} alt="Logo B" className="w-4 h-4 rounded-full object-cover" />
+              )}
+              <div 
+                className="w-3 h-3 rounded-full border border-white"
+                style={{ backgroundColor: teamB.colors?.primary || teamB.color }}
+              />
+              {teamB.name}
+            </TabsTrigger>
+          </TabsList>
 
-          <div className="flex gap-2 pt-4">
-            <Button variant="outline" onClick={onClose} className="flex-1">
-              Cancelar
-            </Button>
-            <Button onClick={handleSave} className="flex-1 action-btn">
-              Salvar
-            </Button>
-          </div>
+          <TabsContent value="teamA" className="mt-6">
+            <div className="space-y-6">
+              {/* Basic Info */}
+              <Card>
+                <CardHeader>
+                  <CardTitle className="flex items-center gap-2">
+                    <Settings className="h-5 w-5" />
+                    Informações Básicas
+                  </CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <div>
+                    <Label htmlFor="nameA">Nome do Time</Label>
+                    <Input
+                      id="nameA"
+                      value={teamA.name}
+                      onChange={(e) => setTeamA({ ...teamA, name: e.target.value })}
+                      placeholder="Digite o nome do time"
+                    />
+                  </div>
+                </CardContent>
+              </Card>
+
+              {/* Logo */}
+              <LogoSelector
+                currentLogo={teamA.logo}
+                onLogoChange={(logo) => setTeamA({ ...teamA, logo })}
+                teamName={teamA.name}
+              />
+
+              {/* Colors */}
+              <ColorPalette
+                colors={teamA.colors || { primary: teamA.color, secondary: teamA.color, accent: teamA.color, background: '#f8f9fa' }}
+                onColorsChange={(colors) => setTeamA({ ...teamA, colors })}
+                teamName={teamA.name}
+              />
+            </div>
+          </TabsContent>
+
+          <TabsContent value="teamB" className="mt-6">
+            <div className="space-y-6">
+              {/* Basic Info */}
+              <Card>
+                <CardHeader>
+                  <CardTitle className="flex items-center gap-2">
+                    <Settings className="h-5 w-5" />
+                    Informações Básicas
+                  </CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <div>
+                    <Label htmlFor="nameB">Nome do Time</Label>
+                    <Input
+                      id="nameB"
+                      value={teamB.name}
+                      onChange={(e) => setTeamB({ ...teamB, name: e.target.value })}
+                      placeholder="Digite o nome do time"
+                    />
+                  </div>
+                </CardContent>
+              </Card>
+
+              {/* Logo */}
+              <LogoSelector
+                currentLogo={teamB.logo}
+                onLogoChange={(logo) => setTeamB({ ...teamB, logo })}
+                teamName={teamB.name}
+              />
+
+              {/* Colors */}
+              <ColorPalette
+                colors={teamB.colors || { primary: teamB.color, secondary: teamB.color, accent: teamB.color, background: '#f8f9fa' }}
+                onColorsChange={(colors) => setTeamB({ ...teamB, colors })}
+                teamName={teamB.name}
+              />
+            </div>
+          </TabsContent>
+        </Tabs>
+
+        <div className="flex gap-2 pt-6 border-t">
+          <Button variant="outline" onClick={onClose} className="flex-1">
+            Cancelar
+          </Button>
+          <Button onClick={handleSave} className="flex-1 action-btn">
+            Salvar Alterações
+          </Button>
         </div>
       </DialogContent>
     </Dialog>
