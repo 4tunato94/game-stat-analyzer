@@ -4,6 +4,7 @@ import { Card, CardContent } from '@/components/ui/card';
 import { useGameState } from '@/hooks/useGameState';
 import { formatGameTime } from '@/types/football';
 import { Button } from '@/components/ui/button';
+import { ThemeToggle } from '@/components/ui/theme-toggle';
 
 // Components
 import { AppSidebar } from '@/components/AppSidebar';
@@ -236,6 +237,7 @@ const Index = () => {
                 <span className="hidden md:inline">Editar Times</span>
                 <span className="md:hidden text-xs">⚙️</span>
               </Button>
+              <ThemeToggle />
             </div>
           </header>
 

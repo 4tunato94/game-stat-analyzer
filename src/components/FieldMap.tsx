@@ -55,28 +55,44 @@ export const FieldMap: React.FC<FieldMapProps> = ({ onZoneClick }) => {
   if (isFullscreen) {
     return (
       <div className="fixed inset-0 z-50 bg-black flex items-center justify-center">
-        <div className="relative w-full h-full max-w-7xl max-h-screen p-4">
+        <div className="relative w-full h-full p-0">
           <Button
             onClick={toggleFullscreen}
             variant="ghost"
             size="sm"
-            className="absolute top-4 right-4 z-10 bg-black/50 hover:bg-black/70 text-white"
+            className="absolute top-4 right-4 z-30 bg-black/70 hover:bg-black/90 text-white border border-white/20"
           >
             <X className="h-4 w-4" />
           </Button>
           
-          {/* Zone overlay for visual feedback */}
-          <div className="absolute inset-0 pointer-events-none z-10">
+          {/* Zone overlays for visual feedback */}
+          <div className="absolute inset-0 pointer-events-none z-20">
             {/* Click animation */}
             {clickPosition && (
               <div
-                className="absolute w-12 h-12 bg-white/30 rounded-full animate-ping"
+                className="absolute w-16 h-16 bg-primary/40 rounded-lg animate-ping border-2 border-primary"
                 style={{
-                  left: clickPosition.x - 24,
-                  top: clickPosition.y - 24,
+                  left: clickPosition.x - 32,
+                  top: clickPosition.y - 32,
                 }}
               />
             )}
+            
+            {/* Zone representations */}
+            <div className="w-full h-full relative">
+              {/* Dynamic zone indicators based on click position */}
+              {clickPosition && (
+                <div
+                  className="absolute bg-primary/20 border-2 border-primary rounded-lg backdrop-blur-sm transition-all duration-500"
+                  style={{
+                    left: `${Math.floor((clickPosition.x / (imageRef.current?.getBoundingClientRect().width || 1)) * 5) * 20}%`,
+                    top: `${Math.floor((clickPosition.y / (imageRef.current?.getBoundingClientRect().height || 1)) * 5) * 20}%`,
+                    width: '20%',
+                    height: '20%',
+                  }}
+                />
+              )}
+            </div>
           </div>
 
           <div
@@ -89,20 +105,13 @@ export const FieldMap: React.FC<FieldMapProps> = ({ onZoneClick }) => {
               ref={imageRef}
               src={fieldImage}
               alt="Campo de Futebol"
-              className="w-full h-full object-contain rounded-lg"
+              className="w-full h-full object-cover"
               draggable={false}
             />
           </div>
 
-          {/* Zone info display */}
-          {hoveredZone && (
-            <div className="absolute bottom-4 left-4 bg-black/70 text-white px-4 py-2 rounded-lg text-lg font-medium z-20">
-              {getZoneName(hoveredZone)}
-            </div>
-          )}
-
-          {/* Instructions */}
-          <div className="absolute bottom-4 right-4 bg-black/70 text-white px-4 py-2 rounded-lg text-sm z-20">
+          {/* Instructions only */}
+          <div className="absolute bottom-4 right-4 bg-black/80 text-white px-6 py-3 rounded-lg text-base font-medium z-20 backdrop-blur-sm border border-white/20">
             Toque em qualquer zona do campo para registrar uma ação
           </div>
         </div>
@@ -123,15 +132,26 @@ export const FieldMap: React.FC<FieldMapProps> = ({ onZoneClick }) => {
 
       {/* Zone overlay for visual feedback */}
       <div className="absolute inset-0 pointer-events-none z-10 rounded-2xl overflow-hidden">
-        {/* Click animation */}
+        {/* Click animation with zone representation */}
         {clickPosition && (
-          <div
-            className="absolute w-8 h-8 bg-white/30 rounded-full animate-ping"
-            style={{
-              left: clickPosition.x - 16,
-              top: clickPosition.y - 16,
-            }}
-          />
+          <>
+            <div
+              className="absolute w-12 h-12 bg-primary/30 rounded-full animate-ping border-2 border-primary"
+              style={{
+                left: clickPosition.x - 24,
+                top: clickPosition.y - 24,
+              }}
+            />
+            <div
+              className="absolute bg-primary/10 border-2 border-primary/50 rounded-lg backdrop-blur-sm transition-all duration-300"
+              style={{
+                left: `${Math.floor((clickPosition.x / (imageRef.current?.getBoundingClientRect().width || 1)) * 5) * 20}%`,
+                top: `${Math.floor((clickPosition.y / (imageRef.current?.getBoundingClientRect().height || 1)) * 5) * 20}%`,
+                width: '20%',
+                height: '20%',
+              }}
+            />
+          </>
         )}
       </div>
 
@@ -154,14 +174,7 @@ export const FieldMap: React.FC<FieldMapProps> = ({ onZoneClick }) => {
         <div className="absolute inset-0 bg-primary/10 rounded-xl opacity-0 hover:opacity-100 transition-opacity duration-200" />
       </div>
 
-      {/* Zone info display */}
-      {hoveredZone && (
-        <div className="absolute bottom-4 left-4 bg-black/70 text-white px-3 py-2 rounded-lg text-sm font-medium z-20">
-          {getZoneName(hoveredZone)}
-        </div>
-      )}
-
-      {/* Instructions */}
+      {/* Instructions only */}
       <div className="mt-2 md:mt-4 text-center text-muted-foreground text-xs md:text-sm">
         Toque em qualquer zona do campo para registrar uma ação
       </div>

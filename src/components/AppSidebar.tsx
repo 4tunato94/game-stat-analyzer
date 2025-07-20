@@ -77,13 +77,13 @@ export const AppSidebar: React.FC<AppSidebarProps> = ({
 
   return (
     <Sidebar className={collapsed ? 'w-16' : 'w-80'}>
-      {/* Persistent Toggle Button */}
-      <div className="absolute top-1/2 -right-4 transform -translate-y-1/2 z-50">
+      {/* Persistent Toggle Button - Center of screen */}
+      <div className="fixed top-1/2 left-4 transform -translate-y-1/2 z-50 transition-all duration-300" style={{ left: collapsed ? '4px' : '320px' }}>
         <button
           onClick={toggleSidebar}
-          className="h-8 w-8 rounded-full bg-black/20 hover:bg-black/40 backdrop-blur-sm border border-white/20 p-0 transition-all duration-300 flex items-center justify-center"
+          className="h-10 w-10 rounded-full bg-primary/80 hover:bg-primary backdrop-blur-sm border border-primary/30 p-0 transition-all duration-300 flex items-center justify-center shadow-lg"
         >
-          <span className="text-white text-sm">{collapsed ? '›' : '‹'}</span>
+          <span className="text-primary-foreground text-lg font-bold">{collapsed ? '›' : '‹'}</span>
         </button>
       </div>
       

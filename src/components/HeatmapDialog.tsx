@@ -272,7 +272,7 @@ export const HeatmapDialog: React.FC<HeatmapDialogProps> = ({
           </CardTitle>
         </CardHeader>
         <CardContent>
-          <div className="relative" ref={heatmapRef}>
+          <div className="relative w-full" ref={heatmapRef} data-heatmap-export="true">
             {/* Field background */}
             <img
               src={fieldImage}
@@ -291,14 +291,15 @@ export const HeatmapDialog: React.FC<HeatmapDialogProps> = ({
                 return (
                   <div
                     key={zone.id}
-                    className="absolute transition-all duration-300 border border-white/30 flex flex-col items-center justify-center text-center p-1"
+                    className="absolute transition-all duration-300 border border-white/40 flex flex-col items-center justify-center text-center p-1"
                     style={{
                       ...position,
                       backgroundColor: count > 0 
-                        ? `${getIntensityColor(intensity)}${Math.round(intensity * 0.8 * 255).toString(16).padStart(2, '0')}` 
-                        : 'rgba(255, 255, 255, 0.1)',
+                        ? `${getIntensityColor(intensity)}${Math.round(intensity * 0.9 * 255).toString(16).padStart(2, '0')}` 
+                        : 'rgba(0, 0, 0, 0.1)',
                     }}
                     title={`${zone.name}: ${count} ações (${percentage}%)`}
+                    data-zone-overlay="true"
                   >
                     {count > 0 ? (
                       <>
@@ -413,7 +414,7 @@ export const HeatmapDialog: React.FC<HeatmapDialogProps> = ({
 
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
-      <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto">
+      <DialogContent className="max-w-6xl max-h-[95vh] overflow-y-auto">
         <DialogHeader>
           <DialogTitle className="flex items-center gap-2">
             <Flame className="h-6 w-6" />
