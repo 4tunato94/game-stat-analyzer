@@ -176,8 +176,25 @@ export const HeatmapDialog: React.FC<HeatmapDialogProps> = ({
   };
 
   const exportHeatmap = async () => {
-    // This would require html2canvas library
-    alert('Funcionalidade de exportação de mapa de calor será implementada em breve!');
+    try {
+      const html2canvas = (await import('html2canvas')).default;
+      const element = heatmapRef.current;
+      if (!element) return;
+      
+      const canvas = await html2canvas(element, {
+        backgroundColor: '#ffffff',
+        scale: 2,
+        useCORS: true,
+      });
+      
+      const link = document.createElement('a');
+      link.download = `mapa_de_calor_${new Date().toISOString().split('T')[0]}.png`;
+      link.href = canvas.toDataURL();
+      link.click();
+    } catch (error) {
+      console.error('Erro ao exportar mapa de calor:', error);
+      alert('Erro ao exportar mapa de calor. Tente novamente.');
+    }
   };
 
   const getIntensityColor = (intensity: number) => {

@@ -10,29 +10,7 @@ interface LogoSelectorProps {
   teamName: string;
 }
 
-// Predefined logos from Unsplash
-const PREDEFINED_LOGOS = [
-  {
-    id: 'lion',
-    url: 'https://images.unsplash.com/photo-1472396961693-142e6e269027?w=200&h=200&fit=crop&crop=center',
-    name: 'Leão'
-  },
-  {
-    id: 'eagle',
-    url: 'https://images.unsplash.com/photo-1466721591366-2d5fba72006d?w=200&h=200&fit=crop&crop=center',
-    name: 'Águia'
-  },
-  {
-    id: 'bull',
-    url: 'https://images.unsplash.com/photo-1493962853295-0fd70327578a?w=200&h=200&fit=crop&crop=center',
-    name: 'Touro'
-  },
-  {
-    id: 'horse',
-    url: 'https://images.unsplash.com/photo-1452378174528-3090a4bba7b2?w=200&h=200&fit=crop&crop=center',
-    name: 'Cavalo'
-  },
-];
+// No predefined logos - removed as requested
 
 export const LogoSelector: React.FC<LogoSelectorProps> = ({
   currentLogo,
@@ -127,27 +105,6 @@ export const LogoSelector: React.FC<LogoSelectorProps> = ({
         />
       </div>
 
-      {/* Predefined Logos */}
-      <div>
-        <Label className="text-sm">Ou escolha um logo predefinido:</Label>
-        <div className="grid grid-cols-2 gap-3 mt-2">
-          {PREDEFINED_LOGOS.map((logo) => (
-            <Button
-              key={logo.id}
-              variant="outline"
-              className="h-20 p-2 flex flex-col items-center gap-2"
-              onClick={() => handlePredefinedLogo(logo.url)}
-            >
-              <img
-                src={logo.url}
-                alt={logo.name}
-                className="w-8 h-8 rounded-full object-cover"
-              />
-              <span className="text-xs">{logo.name}</span>
-            </Button>
-          ))}
-        </div>
-      </div>
     </div>
   );
 };

@@ -135,9 +135,25 @@ ${actions.slice(0, 10).map(action => {
   };
 
   const exportToImage = async () => {
-    // This would require html2canvas or similar library
-    // For now, we'll show an alert
-    alert('Funcionalidade de exportação de imagem será implementada em breve!');
+    try {
+      const html2canvas = (await import('html2canvas')).default;
+      const element = document.querySelector('[data-stats-export]');
+      if (!element) return;
+      
+      const canvas = await html2canvas(element as HTMLElement, {
+        backgroundColor: '#ffffff',
+        scale: 2,
+        useCORS: true,
+      });
+      
+      const link = document.createElement('a');
+      link.download = `estatisticas_detalhadas_${teamNames.A}_vs_${teamNames.B}.png`;
+      link.href = canvas.toDataURL();
+      link.click();
+    } catch (error) {
+      console.error('Erro ao exportar imagem:', error);
+      alert('Erro ao exportar imagem. Tente novamente.');
+    }
   };
 
   const TeamStats: React.FC<{ 
@@ -310,7 +326,7 @@ ${actions.slice(0, 10).map(action => {
             </p>
           </div>
         ) : (
-          <div className="space-y-6">
+          <div className="space-y-6" data-stats-export>
             {/* Export Buttons */}
             <div className="flex gap-2 justify-center">
               <Button onClick={exportToText} variant="outline" className="flex items-center gap-2">
@@ -323,53 +339,109 @@ ${actions.slice(0, 10).map(action => {
               </Button>
             </div>
 
-            {/* Possession */}
+            {/* Possession with Enhanced Visualization */}
             <Card>
               <CardHeader>
                 <CardTitle className="text-center">Posse de Bola</CardTitle>
               </CardHeader>
               <CardContent>
-                <div className="flex items-center justify-between gap-4">
-                  <div className="text-center flex-1">
-                    <div 
-                      className="text-4xl font-bold mb-2"
-                      style={{ color: teamColors.A }}
-                    >
-                      {stats.teamA.possession.toFixed(0)}%
-                    </div>
-                    <div className="text-sm text-muted-foreground">{teamNames.A}</div>
-                  </div>
-                  <div className="text-2xl font-bold text-muted-foreground">VS</div>
-                  <div className="text-center flex-1">
-                    <div 
-                      className="text-4xl font-bold mb-2"
-                      style={{ color: teamColors.B }}
-                    >
-                      {stats.teamB.possession.toFixed(0)}%
-                    </div>
-                    <div className="text-sm text-muted-foreground">{teamNames.B}</div>
-                  </div>
-                </div>
-                <div className="mt-4">
-                  <div className="text-xs text-muted-foreground text-center mb-2">
-                    Intensidade de ações por zona do campo
-                  </div>
-                  <div className="w-full bg-muted rounded-full h-3 overflow-hidden">
+                <div className="relative">
+                  {/* Background visualization */}
+                  <div className="absolute inset-0 opacity-10 rounded-lg overflow-hidden">
                     <div className="h-full flex">
                       <div 
-                        className="h-full transition-all duration-500"
+                        className="transition-all duration-1000 ease-out"
                         style={{ 
                           backgroundColor: teamColors.A,
                           width: `${stats.teamA.possession}%`
                         }}
                       />
                       <div 
-                        className="h-full transition-all duration-500"
+                        className="transition-all duration-1000 ease-out"
                         style={{ 
                           backgroundColor: teamColors.B,
                           width: `${stats.teamB.possession}%`
                         }}
                       />
+                    </div>
+                  </div>
+                  
+                  {/* Content over background */}
+                  <div className="relative z-10">
+                    <div className="flex items-center justify-between gap-4 mb-4">
+                      <div className="text-center flex-1">
+                        <div 
+                          className="text-4xl font-bold mb-2"
+                          style={{ color: teamColors.A }}
+                        >
+                          {stats.teamA.possession.toFixed(0)}%
+                        </div>
+                        <div className="text-sm text-muted-foreground">{teamNames.A}</div>
+                        
+                        {/* Lateral chart for Team A */}
+                        <div className="mt-3 flex justify-center">
+                          <div className="w-2 h-16 bg-muted rounded-full overflow-hidden">
+                            <div 
+                              className="w-full bg-current transition-all duration-1000 ease-out"
+                              style={{ 
+                                color: teamColors.A,
+                                height: `${stats.teamA.possession}%`,
+                                marginTop: `${100 - stats.teamA.possession}%`
+                              }}
+                            />
+                          </div>
+                        </div>
+                      </div>
+                      
+                      <div className="text-2xl font-bold text-muted-foreground">VS</div>
+                      
+                      <div className="text-center flex-1">
+                        <div 
+                          className="text-4xl font-bold mb-2"
+                          style={{ color: teamColors.B }}
+                        >
+                          {stats.teamB.possession.toFixed(0)}%
+                        </div>
+                        <div className="text-sm text-muted-foreground">{teamNames.B}</div>
+                        
+                        {/* Lateral chart for Team B */}
+                        <div className="mt-3 flex justify-center">
+                          <div className="w-2 h-16 bg-muted rounded-full overflow-hidden">
+                            <div 
+                              className="w-full bg-current transition-all duration-1000 ease-out"
+                              style={{ 
+                                color: teamColors.B,
+                                height: `${stats.teamB.possession}%`,
+                                marginTop: `${100 - stats.teamB.possession}%`
+                              }}
+                            />
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                    
+                    <div className="mt-4">
+                      <div className="text-xs text-muted-foreground text-center mb-2">
+                        Distribuição da posse de bola baseada nas ações
+                      </div>
+                      <div className="w-full bg-muted rounded-full h-4 overflow-hidden shadow-inner">
+                        <div className="h-full flex">
+                          <div 
+                            className="h-full transition-all duration-1000 ease-out"
+                            style={{ 
+                              backgroundColor: teamColors.A,
+                              width: `${stats.teamA.possession}%`
+                            }}
+                          />
+                          <div 
+                            className="h-full transition-all duration-1000 ease-out"
+                            style={{ 
+                              backgroundColor: teamColors.B,
+                              width: `${stats.teamB.possession}%`
+                            }}
+                          />
+                        </div>
+                      </div>
                     </div>
                   </div>
                 </div>

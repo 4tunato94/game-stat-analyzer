@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { SidebarProvider, SidebarTrigger } from '@/components/ui/sidebar';
 import { Card, CardContent } from '@/components/ui/card';
 import { useGameState } from '@/hooks/useGameState';
@@ -44,6 +44,28 @@ const Index = () => {
   const [heatmapDialogOpen, setHeatmapDialogOpen] = useState(false);
   const [actionTypesDialogOpen, setActionTypesDialogOpen] = useState(false);
   const [teamEditDialogOpen, setTeamEditDialogOpen] = useState(false);
+  
+  // Header visibility for mobile
+  const [headerVisible, setHeaderVisible] = useState(true);
+  const [lastScrollY, setLastScrollY] = useState(0);
+
+  // Handle scroll for header visibility
+  useEffect(() => {
+    const handleScroll = () => {
+      const currentScrollY = window.scrollY;
+      
+      if (currentScrollY < lastScrollY || currentScrollY < 50) {
+        setHeaderVisible(true);
+      } else if (currentScrollY > lastScrollY && currentScrollY > 100) {
+        setHeaderVisible(false);
+      }
+      
+      setLastScrollY(currentScrollY);
+    };
+
+    window.addEventListener('scroll', handleScroll, { passive: true });
+    return () => window.removeEventListener('scroll', handleScroll);
+  }, [lastScrollY]);
 
   // Handle zone click from field
   const handleZoneClick = (zoneId: string) => {
@@ -113,8 +135,12 @@ const Index = () => {
         {/* Main Content */}
         <main className="flex-1 flex flex-col min-h-screen">
           {/* Mobile Header */}
-          <header className="h-14 md:h-16 border-b bg-card flex items-center px-2 md:px-4 gap-2 md:gap-4 sticky top-0 z-40">
-            <SidebarTrigger className="h-8 w-8 md:h-10 md:w-10" />
+          <header className={`h-14 md:h-16 border-b flex items-center px-2 md:px-4 gap-2 md:gap-4 sticky top-0 z-40 transition-all duration-300 md:bg-card md:opacity-100 ${
+            headerVisible 
+              ? 'bg-card/95 backdrop-blur-sm opacity-100' 
+              : 'bg-card/40 backdrop-blur-sm opacity-60 pointer-events-none'
+          }`}>
+            <SidebarTrigger className={`h-8 w-8 md:h-10 md:w-10 transition-opacity duration-300 ${headerVisible ? 'pointer-events-auto' : 'pointer-events-none opacity-30'}`} />
             
             <div className="flex-1 flex items-center justify-center">
               {/* Mobile Layout */}
@@ -169,6 +195,9 @@ const Index = () => {
                     <div className="text-sm text-muted-foreground">
                       {gameState.actions.filter(a => a.team === 'A').length} ações
                     </div>
+                    <div className="mt-1 text-xs font-medium" style={{ color: gameState.teams.A.color }}>
+                      {gameState.actions.length > 0 ? Math.round((gameState.actions.filter(a => a.team === 'A').length / gameState.actions.length) * 100) : 0}% posse
+                    </div>
                   </div>
                 </div>
 
@@ -185,6 +214,9 @@ const Index = () => {
                     <div className="font-bold text-lg">{gameState.teams.B.name}</div>
                     <div className="text-sm text-muted-foreground">
                       {gameState.actions.filter(a => a.team === 'B').length} ações
+                    </div>
+                    <div className="mt-1 text-xs font-medium" style={{ color: gameState.teams.B.color }}>
+                      {gameState.actions.length > 0 ? Math.round((gameState.actions.filter(a => a.team === 'B').length / gameState.actions.length) * 100) : 0}% posse
                     </div>
                   </div>
                   {gameState.teams.B.logo ? (
@@ -204,7 +236,7 @@ const Index = () => {
             </div>
 
             {/* Mobile Timer and Edit Teams Button */}
-            <div className="flex items-center gap-1 md:gap-2">
+            <div className={`flex items-center gap-1 md:gap-2 transition-opacity duration-300 ${headerVisible ? 'pointer-events-auto' : 'pointer-events-none opacity-30'}`}>
               <div className="text-xs md:text-sm font-mono">
                 {formatGameTime(gameState.currentTime)}
               </div>

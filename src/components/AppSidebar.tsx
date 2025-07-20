@@ -8,6 +8,7 @@ import {
   SidebarMenu,
   SidebarMenuButton,
   SidebarMenuItem,
+  SidebarTrigger,
   useSidebar,
 } from '@/components/ui/sidebar';
 import { Button } from '@/components/ui/button';
@@ -19,6 +20,7 @@ import {
   Play,
   Pause,
   RotateCcw,
+  Menu,
 } from 'lucide-react';
 import { GameTimer } from './GameTimer';
 
@@ -75,6 +77,19 @@ export const AppSidebar: React.FC<AppSidebarProps> = ({
 
   return (
     <Sidebar className={collapsed ? 'w-16' : 'w-80'}>
+      {/* Persistent Toggle Button */}
+      <div className="absolute top-1/2 -right-6 transform -translate-y-1/2 z-50">
+        <SidebarTrigger asChild>
+          <Button 
+            variant="default" 
+            size="sm" 
+            className="h-10 w-10 rounded-full shadow-lg bg-primary hover:bg-primary/90"
+          >
+            <Menu className="h-4 w-4" />
+          </Button>
+        </SidebarTrigger>
+      </div>
+      
       <SidebarContent className="p-4">
         {/* Timer Section */}
         <SidebarGroup>

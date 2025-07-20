@@ -78,85 +78,6 @@ export const ColorPalette: React.FC<ColorPaletteProps> = ({
         </CardTitle>
       </CardHeader>
       <CardContent className="space-y-4">
-        {/* Color Inputs */}
-        <div className="grid grid-cols-2 gap-3">
-          <div>
-            <Label htmlFor="primary">Cor Principal</Label>
-            <div className="flex gap-2">
-              <Input
-                id="primary"
-                type="color"
-                value={colors.primary}
-                onChange={(e) => handleColorChange('primary', e.target.value)}
-                className="w-12 h-10 p-1 rounded"
-              />
-              <Input
-                value={colors.primary}
-                onChange={(e) => handleColorChange('primary', e.target.value)}
-                placeholder="#0066CC"
-                className="flex-1"
-              />
-            </div>
-          </div>
-          
-          <div>
-            <Label htmlFor="secondary">Cor Secundária</Label>
-            <div className="flex gap-2">
-              <Input
-                id="secondary"
-                type="color"
-                value={colors.secondary}
-                onChange={(e) => handleColorChange('secondary', e.target.value)}
-                className="w-12 h-10 p-1 rounded"
-              />
-              <Input
-                value={colors.secondary}
-                onChange={(e) => handleColorChange('secondary', e.target.value)}
-                placeholder="#004499"
-                className="flex-1"
-              />
-            </div>
-          </div>
-          
-          <div>
-            <Label htmlFor="accent">Cor de Destaque</Label>
-            <div className="flex gap-2">
-              <Input
-                id="accent"
-                type="color"
-                value={colors.accent}
-                onChange={(e) => handleColorChange('accent', e.target.value)}
-                className="w-12 h-10 p-1 rounded"
-              />
-              <Input
-                value={colors.accent}
-                onChange={(e) => handleColorChange('accent', e.target.value)}
-                placeholder="#3399FF"
-                className="flex-1"
-              />
-            </div>
-          </div>
-          
-          <div>
-            <Label htmlFor="background">Cor de Fundo</Label>
-            <div className="flex gap-2">
-              <Input
-                id="background"
-                type="color"
-                value={colors.background}
-                onChange={(e) => handleColorChange('background', e.target.value)}
-                className="w-12 h-10 p-1 rounded"
-              />
-              <Input
-                value={colors.background}
-                onChange={(e) => handleColorChange('background', e.target.value)}
-                placeholder="#E6F3FF"
-                className="flex-1"
-              />
-            </div>
-          </div>
-        </div>
-
         {/* Color Preview */}
         <div className="p-4 rounded-lg border" style={{ backgroundColor: colors.background }}>
           <div className="flex gap-2 mb-2">
@@ -176,19 +97,6 @@ export const ColorPalette: React.FC<ColorPaletteProps> = ({
           <div className="text-sm" style={{ color: colors.primary }}>
             Preview das cores do {teamName}
           </div>
-        </div>
-
-        {/* Actions */}
-        <div className="flex gap-2">
-          <Button
-            variant="outline"
-            size="sm"
-            onClick={generateRandomColors}
-            className="flex items-center gap-2"
-          >
-            <RefreshCw className="h-4 w-4" />
-            Gerar Aleatório
-          </Button>
         </div>
 
         {/* Color Presets */}
