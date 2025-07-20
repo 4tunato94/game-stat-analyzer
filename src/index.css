@@ -196,5 +196,15 @@
 
   .border-team-a-primary { border-color: var(--team-a-primary, #2563eb); }
   .border-team-b-primary { border-color: var(--team-b-primary, #dc2626); }
-}
+
+  /* Mobile optimization */
+  .field-mobile-optimized {
+    @apply h-[60vh] sm:h-[70vh] md:h-[80vh];
+    @apply max-w-full w-full;
+  }
+
+  .main-content-mobile {
+    @apply flex-1 p-2 sm:p-4 md:p-6;
+    @apply overflow-hidden;
+  }
 }

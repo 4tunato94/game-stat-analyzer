@@ -46,7 +46,7 @@ export const FieldMap: React.FC<FieldMapProps> = ({ onZoneClick }) => {
   };
 
   return (
-    <div className="field-container relative">
+    <div className="field-container relative field-mobile-optimized">
       {/* Zone overlay for visual feedback */}
       <div className="absolute inset-0 pointer-events-none z-10 rounded-2xl overflow-hidden">
         {/* Grid visualization for development - remove in production */}
@@ -82,7 +82,7 @@ export const FieldMap: React.FC<FieldMapProps> = ({ onZoneClick }) => {
           ref={imageRef}
           src={fieldImage}
           alt="Campo de Futebol"
-          className="w-full h-auto rounded-xl shadow-lg"
+          className="w-full h-full object-cover rounded-xl shadow-lg"
           draggable={false}
         />
         
@@ -98,7 +98,7 @@ export const FieldMap: React.FC<FieldMapProps> = ({ onZoneClick }) => {
       )}
 
       {/* Instructions */}
-      <div className="mt-4 text-center text-muted-foreground text-sm">
+      <div className="mt-2 md:mt-4 text-center text-muted-foreground text-xs md:text-sm">
         Toque em qualquer zona do campo para registrar uma ação
       </div>
     </div>
