@@ -113,6 +113,14 @@ const Index = () => {
       gameTime: formatGameTime(gameState.currentTime),
       player,
     });
+
+    // Clear the action popup but don't clear zone selection yet
+    setActionPopupOpen(false);
+  };
+
+  // Handle action completion (to clear persistent markings)
+  const handleActionCompleted = () => {
+    setSelectedZone(null);
   };
 
   return (
@@ -247,7 +255,7 @@ const Index = () => {
             <div className="flex-1 p-1 md:p-6">
               <Card className="h-full">
                 <CardContent className="p-2 md:p-6 h-full">
-                  <FieldMap onZoneClick={handleZoneClick} />
+                  <FieldMap onZoneClick={handleZoneClick} onActionCompleted={handleActionCompleted} />
                 </CardContent>
               </Card>
             </div>
@@ -284,6 +292,7 @@ const Index = () => {
             B: gameState.teams.B.color,
           }}
           onActionSubmit={handleActionSubmit}
+          onActionCompleted={handleActionCompleted}
         />
 
         <PlayersDialog

@@ -1,4 +1,4 @@
-import React, { useMemo, useRef } from 'react';
+import React, { useMemo, useRef, useState, useEffect } from 'react';
 import {
   Dialog,
   DialogContent,
@@ -30,7 +30,14 @@ export const HeatmapDialog: React.FC<HeatmapDialogProps> = ({
   teamColors,
   teamNames,
 }) => {
+  const [activeTab, setActiveTab] = useState<'A' | 'B'>('A');
   const heatmapRef = useRef<HTMLDivElement>(null);
+
+  // Prevent dialog from closing on outside click
+  const handleInteractOutside = (e: Event) => {
+    e.preventDefault();
+  };
+
   const heatmapData = useMemo(() => {
     const teamAActions = actions.filter(a => a.team === 'A');
     const teamBActions = actions.filter(a => a.team === 'B');
@@ -105,15 +112,8 @@ export const HeatmapDialog: React.FC<HeatmapDialogProps> = ({
     };
   }, [actions, actionTypes]);
 
-  const getZoneOpacity = (zoneId: string, teamData: typeof heatmapData.teamA): number => {
-    const count = teamData.zones[zoneId] || 0;
-    if (count === 0) return 0;
-    return Math.max(0.1, count / teamData.max);
-  };
-
   const getZonePosition = (zoneId: string): { left: string; top: string; width: string; height: string } => {
-    // Map zone IDs to grid positions
-    const zonePositions: Record<string, { col: number; row: number; colSpan?: number; rowSpan?: number }> = {
+    const zonePositions: Record<string, { col: number; row: number }> = {
       // Z1 - Left goal area (3 zones)
       'Z1_LINE_TOP': { col: 0, row: 0 },
       'Z1_GOAL': { col: 0, row: 1 },
@@ -149,19 +149,16 @@ export const HeatmapDialog: React.FC<HeatmapDialogProps> = ({
     const position = zonePositions[zoneId];
     if (!position) return { left: '0%', top: '0%', width: '20%', height: '20%' };
 
-    // Calculate position based on 5x5 grid, but adjust for different row counts
-    const colWidth = 20; // 100% / 5 columns
+    const colWidth = 20;
     const left = position.col * colWidth;
 
     let top: number, height: number;
     
     if (position.col === 0 || position.col === 4) {
-      // Z1 and Z5 have 3 rows, but need to fill 5-row space
-      const rowHeight = 100 / 3; // Distribute 3 rows across full height
+      const rowHeight = 100 / 3;
       top = position.row * rowHeight;
       height = rowHeight;
     } else {
-      // Z2, Z3, Z4 have 5 rows
       const rowHeight = 100 / 5;
       top = position.row * rowHeight;
       height = rowHeight;
@@ -175,13 +172,17 @@ export const HeatmapDialog: React.FC<HeatmapDialogProps> = ({
     };
   };
 
-  const exportHeatmap = async () => {
+  const getIntensityColor = (intensity: number) => {
+    const hue = Math.max(0, 60 - (intensity * 60));
+    return `hsl(${hue}, 100%, 50%)`;
+  };
+
+  const exportHeatmap = async (teamId: 'A' | 'B') => {
     try {
       const html2canvas = (await import('html2canvas')).default;
-      const element = heatmapRef.current;
+      const element = document.querySelector(`[data-heatmap-team="${teamId}"]`) as HTMLElement;
       if (!element) return;
       
-      // Wait a bit for styles to settle
       await new Promise(resolve => setTimeout(resolve, 100));
       
       const canvas = await html2canvas(element, {
@@ -191,24 +192,10 @@ export const HeatmapDialog: React.FC<HeatmapDialogProps> = ({
         allowTaint: true,
         foreignObjectRendering: true,
         logging: false,
-        onclone: (clonedDoc) => {
-          // Ensure colors are preserved in cloned document
-          const clonedElement = clonedDoc.querySelector('[data-heatmap-export]');
-          if (clonedElement) {
-            const overlays = clonedElement.querySelectorAll('[data-zone-overlay]');
-            overlays.forEach((overlay: any) => {
-              const originalBg = overlay.style.backgroundColor;
-              if (originalBg) {
-                overlay.style.backgroundColor = originalBg;
-                overlay.style.opacity = overlay.style.opacity || '0.8';
-              }
-            });
-          }
-        }
       });
       
       const link = document.createElement('a');
-      link.download = `mapa_de_calor_${new Date().toISOString().split('T')[0]}.png`;
+      link.download = `mapa_de_calor_${teamNames[teamId]}_${new Date().toISOString().split('T')[0]}.png`;
       link.href = canvas.toDataURL();
       link.click();
     } catch (error) {
@@ -217,18 +204,11 @@ export const HeatmapDialog: React.FC<HeatmapDialogProps> = ({
     }
   };
 
-  const getIntensityColor = (intensity: number) => {
-    // Generate color from yellow to red based on intensity
-    const hue = Math.max(0, 60 - (intensity * 60)); // 60 = yellow, 0 = red
-    return `hsl(${hue}, 100%, 50%)`;
-  };
-
   const TeamHeatmap: React.FC<{ 
     teamId: 'A' | 'B';
     teamData: typeof heatmapData.teamA;
   }> = ({ teamId, teamData }) => (
     <div className="space-y-6">
-      {/* Overview */}
       <Card>
         <CardContent className="p-4">
           <div className="flex items-center justify-between">
@@ -252,36 +232,28 @@ export const HeatmapDialog: React.FC<HeatmapDialogProps> = ({
         </CardContent>
       </Card>
 
-      {/* Export Button */}
       <div className="flex justify-center">
-        <Button onClick={exportHeatmap} variant="outline" className="flex items-center gap-2">
+        <Button onClick={() => exportHeatmap(teamId)} variant="outline" className="flex items-center gap-2">
           <Image className="h-4 w-4" />
-          Exportar Mapa Selecionado
+          Exportar Mapa {teamNames[teamId]}
         </Button>
       </div>
 
-      {/* Heatmap Visualization */}
       <Card>
         <CardHeader>
           <CardTitle className="flex items-center gap-2">
             <Flame className="h-5 w-5" />
             Mapa de Calor - {teamNames[teamId]}
-            <div className="text-sm text-muted-foreground ml-auto">
-              Intensidade de ações por zona do campo
-            </div>
           </CardTitle>
         </CardHeader>
         <CardContent>
-          <div className="relative w-full" ref={heatmapRef} data-heatmap-export="true">
-            {/* Field background */}
+          <div className="relative w-full" data-heatmap-team={teamId}>
             <img
               src={fieldImage}
               alt="Campo de Futebol"
-              className="w-full h-auto rounded-lg"
-              style={{ display: 'block' }}
+              className="w-full h-auto rounded-lg block"
             />
             
-      {/* Heat overlay with improved colors and percentage display */}
             <div className="absolute inset-0 rounded-lg overflow-hidden">
               {ZONES.map((zone) => {
                 const count = teamData.zones[zone.id] || 0;
@@ -296,11 +268,10 @@ export const HeatmapDialog: React.FC<HeatmapDialogProps> = ({
                     style={{
                       ...position,
                       backgroundColor: count > 0 
-                        ? `${getIntensityColor(intensity)}${Math.round(intensity * 0.9 * 255).toString(16).padStart(2, '0')}` 
+                        ? `${getIntensityColor(intensity)}${Math.round(intensity * 0.8 * 255).toString(16).padStart(2, '0')}` 
                         : 'rgba(0, 0, 0, 0.1)',
                     }}
                     title={`${zone.name}: ${count} ações (${percentage}%)`}
-                    data-zone-overlay="true"
                   >
                     {count > 0 ? (
                       <>
@@ -321,7 +292,6 @@ export const HeatmapDialog: React.FC<HeatmapDialogProps> = ({
               })}
             </div>
             
-            {/* Enhanced Legend */}
             <div className="absolute bottom-2 left-2 bg-black/80 text-white p-3 rounded text-xs">
               <div className="space-y-2">
                 <div className="flex items-center gap-2">
@@ -350,7 +320,6 @@ export const HeatmapDialog: React.FC<HeatmapDialogProps> = ({
         </CardContent>
       </Card>
 
-      {/* Top Zones */}
       {teamData.topZones.length > 0 && (
         <Card>
           <CardHeader>
@@ -387,7 +356,6 @@ export const HeatmapDialog: React.FC<HeatmapDialogProps> = ({
                         }}
                       />
                     </div>
-                    {/* Top actions in this zone */}
                     {zone.topActions && zone.topActions.length > 0 && (
                       <div className="text-xs text-muted-foreground">
                         <div className="font-medium mb-1">Ações principais:</div>
@@ -415,7 +383,10 @@ export const HeatmapDialog: React.FC<HeatmapDialogProps> = ({
 
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
-      <DialogContent className="max-w-6xl max-h-[95vh] overflow-y-auto" onInteractOutside={(e) => e.preventDefault()}>
+      <DialogContent 
+        className="max-w-6xl max-h-[95vh] overflow-y-auto" 
+        onInteractOutside={handleInteractOutside}
+      >
         <DialogHeader>
           <DialogTitle className="flex items-center gap-2">
             <Flame className="h-6 w-6" />
@@ -432,52 +403,38 @@ export const HeatmapDialog: React.FC<HeatmapDialogProps> = ({
             </p>
           </div>
         ) : (
-          <div className="space-y-6">
-            {/* Export Buttons */}
-            <div className="flex gap-2 justify-center">
-              <Button onClick={exportHeatmap} variant="outline" className="flex items-center gap-2">
-                <Image className="h-4 w-4" />
-                Exportar Time A
-              </Button>
-              <Button onClick={exportHeatmap} variant="outline" className="flex items-center gap-2">
-                <Image className="h-4 w-4" />
-                Exportar Time B
-              </Button>
-            </div>
+          <Tabs value={activeTab} onValueChange={(value) => setActiveTab(value as 'A' | 'B')}>
+            <TabsList className="grid w-full grid-cols-2">
+              <TabsTrigger 
+                value="A"
+                className="flex items-center gap-2"
+              >
+                <div 
+                  className="w-3 h-3 rounded-full"
+                  style={{ backgroundColor: teamColors.A }}
+                />
+                {teamNames.A}
+              </TabsTrigger>
+              <TabsTrigger 
+                value="B"
+                className="flex items-center gap-2"
+              >
+                <div 
+                  className="w-3 h-3 rounded-full"
+                  style={{ backgroundColor: teamColors.B }}
+                />
+                {teamNames.B}
+              </TabsTrigger>
+            </TabsList>
 
-            <Tabs defaultValue="A">
-              <TabsList className="grid w-full grid-cols-2">
-                <TabsTrigger 
-                  value="A"
-                  className="flex items-center gap-2"
-                >
-                  <div 
-                    className="w-3 h-3 rounded-full"
-                    style={{ backgroundColor: teamColors.A }}
-                  />
-                  {teamNames.A}
-                </TabsTrigger>
-                <TabsTrigger 
-                  value="B"
-                  className="flex items-center gap-2"
-                >
-                  <div 
-                    className="w-3 h-3 rounded-full"
-                    style={{ backgroundColor: teamColors.B }}
-                  />
-                  {teamNames.B}
-                </TabsTrigger>
-              </TabsList>
+            <TabsContent value="A">
+              <TeamHeatmap teamId="A" teamData={heatmapData.teamA} />
+            </TabsContent>
 
-              <TabsContent value="A" className="mt-6">
-                <TeamHeatmap teamId="A" teamData={heatmapData.teamA} />
-              </TabsContent>
-
-              <TabsContent value="B" className="mt-6">
-                <TeamHeatmap teamId="B" teamData={heatmapData.teamB} />
-              </TabsContent>
-            </Tabs>
-          </div>
+            <TabsContent value="B">
+              <TeamHeatmap teamId="B" teamData={heatmapData.teamB} />
+            </TabsContent>
+          </Tabs>
         )}
       </DialogContent>
     </Dialog>

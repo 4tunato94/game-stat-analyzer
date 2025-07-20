@@ -6,12 +6,14 @@ import fieldImage from '@/assets/football-field.jpg';
 
 interface FieldMapProps {
   onZoneClick: (zoneId: string) => void;
+  onActionCompleted?: () => void;
 }
 
-export const FieldMap: React.FC<FieldMapProps> = ({ onZoneClick }) => {
+export const FieldMap: React.FC<FieldMapProps> = ({ onZoneClick, onActionCompleted }) => {
   const [hoveredZone, setHoveredZone] = useState<string | null>(null);
   const [clickPosition, setClickPosition] = useState<{ x: number; y: number } | null>(null);
   const [isFullscreen, setIsFullscreen] = useState(false);
+  const [persistentMarking, setPersistentMarking] = useState<{ x: number; y: number; zoneId: string } | null>(null);
   const imageRef = useRef<HTMLImageElement>(null);
 
   const handleClick = (event: React.MouseEvent<HTMLDivElement>) => {
@@ -27,9 +29,12 @@ export const FieldMap: React.FC<FieldMapProps> = ({ onZoneClick }) => {
     // Calculate zone based on relative position
     const zoneId = getZoneFromCoordinates(x, y, rect.width, rect.height);
     
+    // Set persistent marking until action is completed
+    setPersistentMarking({ x, y, zoneId });
+    
     onZoneClick(zoneId);
 
-    // Clear click position after animation
+    // Clear click position after animation but keep persistent marking
     setTimeout(() => setClickPosition(null), 300);
   };
 
@@ -78,15 +83,13 @@ export const FieldMap: React.FC<FieldMapProps> = ({ onZoneClick }) => {
               />
             )}
             
-            {/* Zone representations */}
-            <div className="w-full h-full relative">
-            {/* Zone representation on click */}
-            {clickPosition && (
+            {/* Persistent zone marking */}
+            {persistentMarking && (
               <div
                 className="absolute bg-primary/30 border-2 border-primary rounded-lg backdrop-blur-sm transition-all duration-500 flex items-center justify-center text-white font-bold text-lg"
                 style={{
-                  left: `${Math.floor((clickPosition.x / (imageRef.current?.getBoundingClientRect().width || 1)) * 5) * 20}%`,
-                  top: `${Math.floor((clickPosition.y / (imageRef.current?.getBoundingClientRect().height || 1)) * 5) * 20}%`,
+                  left: `${Math.floor((persistentMarking.x / (imageRef.current?.getBoundingClientRect().width || 1)) * 5) * 20}%`,
+                  top: `${Math.floor((persistentMarking.y / (imageRef.current?.getBoundingClientRect().height || 1)) * 5) * 20}%`,
                   width: '20%',
                   height: '20%',
                 }}
@@ -94,7 +97,6 @@ export const FieldMap: React.FC<FieldMapProps> = ({ onZoneClick }) => {
                 ZONA
               </div>
             )}
-            </div>
           </div>
 
         <div
@@ -107,7 +109,7 @@ export const FieldMap: React.FC<FieldMapProps> = ({ onZoneClick }) => {
             ref={imageRef}
             src={fieldImage}
             alt="Campo de Futebol"
-            className="w-full h-full object-contain"
+            className="w-full h-full object-cover"
             draggable={false}
           />
           </div>
@@ -134,28 +136,30 @@ export const FieldMap: React.FC<FieldMapProps> = ({ onZoneClick }) => {
 
       {/* Zone overlay for visual feedback */}
       <div className="absolute inset-0 pointer-events-none z-10 rounded-2xl overflow-hidden">
-        {/* Click animation with zone representation */}
+        {/* Click animation */}
         {clickPosition && (
-          <>
-            <div
-              className="absolute w-12 h-12 bg-primary/30 rounded-full animate-ping border-2 border-primary"
-              style={{
-                left: clickPosition.x - 24,
-                top: clickPosition.y - 24,
-              }}
-            />
-            <div
-              className="absolute bg-primary/20 border-2 border-primary rounded-lg backdrop-blur-sm transition-all duration-300 flex items-center justify-center text-white font-semibold text-sm"
-              style={{
-                left: `${Math.floor((clickPosition.x / (imageRef.current?.getBoundingClientRect().width || 1)) * 5) * 20}%`,
-                top: `${Math.floor((clickPosition.y / (imageRef.current?.getBoundingClientRect().height || 1)) * 5) * 20}%`,
-                width: '20%',
-                height: '20%',
-              }}
-            >
-              ZONA
-            </div>
-          </>
+          <div
+            className="absolute w-12 h-12 bg-primary/30 rounded-full animate-ping border-2 border-primary"
+            style={{
+              left: clickPosition.x - 24,
+              top: clickPosition.y - 24,
+            }}
+          />
+        )}
+        
+        {/* Persistent zone marking */}
+        {persistentMarking && (
+          <div
+            className="absolute bg-primary/30 border-2 border-primary rounded-lg backdrop-blur-sm transition-all duration-300 flex items-center justify-center text-white font-semibold text-sm"
+            style={{
+              left: `${Math.floor((persistentMarking.x / (imageRef.current?.getBoundingClientRect().width || 1)) * 5) * 20}%`,
+              top: `${Math.floor((persistentMarking.y / (imageRef.current?.getBoundingClientRect().height || 1)) * 5) * 20}%`,
+              width: '20%',
+              height: '20%',
+            }}
+          >
+            ZONA
+          </div>
         )}
       </div>
 
@@ -174,8 +178,6 @@ export const FieldMap: React.FC<FieldMapProps> = ({ onZoneClick }) => {
           draggable={false}
         />
         
-        {/* Hover overlay */}
-        <div className="absolute inset-0 bg-primary/10 rounded-xl opacity-0 hover:opacity-100 transition-opacity duration-200" />
       </div>
 
       {/* Instructions only */}

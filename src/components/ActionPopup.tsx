@@ -26,6 +26,7 @@ interface ActionPopupProps {
     actionTypeId: string;
     playerNumber?: number;
   }) => void;
+  onActionCompleted?: () => void;
 }
 
 export const ActionPopup: React.FC<ActionPopupProps> = ({
@@ -37,6 +38,7 @@ export const ActionPopup: React.FC<ActionPopupProps> = ({
   players,
   teamColors,
   onActionSubmit,
+  onActionCompleted,
 }) => {
   const [step, setStep] = useState<PopupStep>('team');
   const [selectedTeam, setSelectedTeam] = useState<'A' | 'B' | null>(null);
@@ -91,6 +93,7 @@ export const ActionPopup: React.FC<ActionPopupProps> = ({
     });
 
     onClose();
+    onActionCompleted?.();
   };
 
   const handleBack = () => {
